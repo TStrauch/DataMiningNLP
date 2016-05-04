@@ -1,5 +1,9 @@
-package sentenceDependencies;
-
+import dependency.SemanticGraphEdgeEvaluator;
+import dependency.extension.*;
+import dependency.parser.DepAdjectivalModifier;
+import dependency.parser.DepAdverbialModifierPassiveVerb;
+import dependency.parser.DepComplementCopularVerb;
+import dependency.parser.DepDirectObjectAdjectivalComplement;
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
@@ -7,6 +11,7 @@ import edu.stanford.nlp.semgraph.SemanticGraph;
 import edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations;
 import edu.stanford.nlp.semgraph.SemanticGraphEdge;
 import edu.stanford.nlp.util.CoreMap;
+import model.ExtractedAspectAndModifier;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -58,10 +63,44 @@ public class DependencyExtractor {
         // these are all the sentences in this document
         List<CoreMap> sentences = document.get(CoreAnnotations.SentencesAnnotation.class);
 
+
+        //create all DependencyExtensions
+        DepExtCompoundNoun depExtCompoundNoun = new DepExtCompoundNoun();
+        DepExtAdverbialModifier depExtAdverbialModifier = new DepExtAdverbialModifier();
+        DepExtSimpleNegation depExtSimpleNegation = new DepExtSimpleNegation();
+        DepExtComplexNegation depExtComplexNegation = new DepExtComplexNegation();
+
         //create all SemanticGraphEdgeEvaluators
         ArrayList<SemanticGraphEdgeEvaluator> evaluators = new ArrayList<SemanticGraphEdgeEvaluator>();
+
+        //add the extensions first to make sure they are ready when needed
+        evaluators.add(depExtCompoundNoun);
+        evaluators.add(depExtAdverbialModifier);
+        evaluators.add(depExtSimpleNegation);
+        evaluators.add(depExtComplexNegation);
+
         evaluators.add(new DepAdjectivalModifier(result));
         evaluators.add(new DepDirectObjectAdjectivalComplement(result));
+        evaluators.add(new DepComplementCopularVerb(result));
+        evaluators.add(new DepAdverbialModifierPassiveVerb(result));
+
+
+        //create all DependencyExtensionsAspects
+        ArrayList<DependencyExtensionAspect> extensionsAspect = new ArrayList<DependencyExtensionAspect>();
+        extensionsAspect.add(depExtCompoundNoun);
+        extensionsAspect.add(depExtSimpleNegation);
+
+        //create all DependencyExtensionsModifier
+        ArrayList<DependencyExtensionModifier> extensionsModifier = new ArrayList<DependencyExtensionModifier>();
+        extensionsModifier.add(depExtAdverbialModifier);
+        extensionsModifier.add(depExtSimpleNegation);
+        extensionsModifier.add(depExtComplexNegation);
+
+        //make the dependency extensions available to the dependency parsers
+        SemanticGraphEdgeEvaluator.dependencyExtensionAspects = extensionsAspect;
+        SemanticGraphEdgeEvaluator.dependencyExtensionModifiers = extensionsModifier;
+
+
 
         for(CoreMap sentence: sentences) {
 
@@ -82,11 +121,14 @@ public class DependencyExtractor {
                 }
             }
             for (SemanticGraphEdgeEvaluator evaluator: evaluators){
+                evaluator.endOfSentence();
+            }
+            for (SemanticGraphEdgeEvaluator evaluator: evaluators){
                 evaluator.clear();
             }
         }
 
-        System.out.println("Extracted Aspect-Modified pairs:"+ result);
+        System.out.println("Extracted Aspect-Modifier pairs:"+ result);
     }
 
     public void depAdjectivalModifier(List<SemanticGraphEdge> edgeSet){

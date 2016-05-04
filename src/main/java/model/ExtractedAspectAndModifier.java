@@ -1,4 +1,4 @@
-package sentenceDependencies;
+package model;
 
 /**
  * Created by Timo on 04.05.16.

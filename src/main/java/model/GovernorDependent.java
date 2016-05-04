@@ -1,4 +1,4 @@
-package sentenceDependencies;
+package model;
 
 import edu.stanford.nlp.ling.IndexedWord;
 

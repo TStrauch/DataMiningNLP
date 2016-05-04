@@ -1,10 +1,16 @@
-package sentenceDependencies;
+package dependency.parser;
 
+import dependency.SemanticGraphEdgeEvaluator;
+import dependency.extension.DependencyExtensionAspect;
+import dependency.extension.DependencyExtensionModifier;
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.semgraph.SemanticGraphEdge;
 import edu.stanford.nlp.trees.GrammaticalRelation;
+import model.ExtractedAspectAndModifier;
+import model.GovernorDependent;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Timo on 04.05.16.
@@ -26,33 +32,30 @@ public class DepDirectObjectAdjectivalComplement extends SemanticGraphEdgeEvalua
 
     public void evalSemanticGraphEdge(SemanticGraphEdge edge) {
         IndexedWord dep = edge.getDependent();
-        String dependent = dep.word();
         IndexedWord gov = edge.getGovernor();
-        String governor = gov.word();
         GrammaticalRelation relation = edge.getRelation();
 
         if(relation.toString().equals(NSUBJ)){ //example: nsubj(good-11, music-3)
             this.saveTmpGovernorDependent(this.tmpNsubjDependencies, gov, dep);
-
-            for (GovernorDependent tmp: this.tmpXcompDependencies){
-                if (governor.equals(tmp.gov.word()) && correctPOSTags(dep, tmp.dep)){
-                    ExtractedAspectAndModifier tuple = new ExtractedAspectAndModifier();
-                    tuple.aspect = dependent;
-                    tuple.modifier = tmp.dep.word();
-                    result.add(tuple);
-                }
-            }
-
         }
-
-        if(relation.toString().equals(XCOMP) || relation.toString().equals(ACOMP) || relation.toString().equals(DOBJ)){
+        else if(relation.toString().equals(XCOMP) || relation.toString().equals(ACOMP) || relation.toString().equals(DOBJ)){
             this.saveTmpGovernorDependent(this.tmpXcompDependencies, gov, dep);
+        }
+    }
 
-            for (GovernorDependent tmp: this.tmpNsubjDependencies){
-                if (governor.equals(tmp.gov.word()) && correctPOSTags(tmp.dep, dep)){
+    public void endOfSentence() {
+        for (GovernorDependent nsubjDep: this.tmpNsubjDependencies){
+
+            for (GovernorDependent xcompDep: this.tmpXcompDependencies){
+
+                if(nsubjDep.gov.equals(xcompDep.gov) && correctPOSTags(nsubjDep.dep, xcompDep.dep)){
+
+                    String aspectExtension = this.getExtensionsAspect(nsubjDep.dep);
+                    String modifierExtension = this.getExtensionsModifier(xcompDep.gov);
+
                     ExtractedAspectAndModifier tuple = new ExtractedAspectAndModifier();
-                    tuple.aspect = tmp.dep.word();
-                    tuple.modifier = dependent;
+                    tuple.aspect = aspectExtension + nsubjDep.dep.word();
+                    tuple.modifier = modifierExtension + xcompDep.dep.word();
                     result.add(tuple);
                 }
             }
@@ -64,10 +67,4 @@ public class DepDirectObjectAdjectivalComplement extends SemanticGraphEdgeEvalua
         this.tmpXcompDependencies.clear();
     }
 
-    private void saveTmpGovernorDependent(ArrayList<GovernorDependent> list, IndexedWord gov, IndexedWord dep){
-        GovernorDependent tmpTupel = new GovernorDependent();
-        tmpTupel.gov = gov;
-        tmpTupel.dep = dep;
-        list.add(tmpTupel);
-    }
 }
