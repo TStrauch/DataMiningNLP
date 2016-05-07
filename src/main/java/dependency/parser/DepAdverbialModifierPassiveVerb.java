@@ -1,8 +1,6 @@
 package dependency.parser;
 
 import dependency.SemanticGraphEdgeEvaluator;
-import dependency.extension.DependencyExtensionAspect;
-import dependency.extension.DependencyExtensionModifier;
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.semgraph.SemanticGraphEdge;
 import edu.stanford.nlp.trees.GrammaticalRelation;
@@ -10,23 +8,21 @@ import model.ExtractedAspectAndModifier;
 import model.GovernorDependent;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Timo on 04.05.16.
  */
 
 public class DepAdverbialModifierPassiveVerb extends SemanticGraphEdgeEvaluator {
-    public ArrayList<ExtractedAspectAndModifier> result;
-
     private static final String NSUBJPASS = "nsubjpass";
     private static final String ADVMOD = "advmod";
+    private ArrayList<ExtractedAspectAndModifier> result;
 
     private ArrayList<GovernorDependent> tmpNsubjpassDependencies = new ArrayList<GovernorDependent>();
     private ArrayList<GovernorDependent> tmpAdvmodDependencies = new ArrayList<GovernorDependent>();
 
-    public DepAdverbialModifierPassiveVerb(ArrayList<ExtractedAspectAndModifier> result){
-        this.result = result;
+    public DepAdverbialModifierPassiveVerb(ArrayList<ExtractedAspectAndModifier> input){
+        this.result = input;
     }
 
     public void evalSemanticGraphEdge(SemanticGraphEdge edge) {
@@ -52,10 +48,10 @@ public class DepAdverbialModifierPassiveVerb extends SemanticGraphEdgeEvaluator 
                     String aspectExtension = this.getExtensionsAspect(nsubjpassDep.dep);
                     String modifierExtension = this.getExtensionsModifier(advmodDep.dep);
 
-                    ExtractedAspectAndModifier tuple = new ExtractedAspectAndModifier();
-                    tuple.aspect = aspectExtension + nsubjpassDep.dep.word();
-                    tuple.modifier = modifierExtension + advmodDep.dep.word();
-                    result.add(tuple);
+                    ExtractedAspectAndModifier tuple = new ExtractedAspectAndModifier(nsubjpassDep.dep, advmodDep.dep);
+                    tuple.setExtensions(aspectExtension, modifierExtension);
+
+                    this.result.add(tuple);
                 }
             }
         }

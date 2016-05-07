@@ -47,9 +47,6 @@ public abstract class SemanticGraphEdgeEvaluator {
     }
     protected String getExtensionsModifier(IndexedWord modifier){
         String modifierExtension = "";
-        if(modifier.word().equals("good")){
-            System.out.println("");
-        }
         for (DependencyExtensionModifier extModifier: this.dependencyExtensionModifiers){
             String tmpext = extModifier.getExtension(modifier.word());
             if (tmpext != null) {

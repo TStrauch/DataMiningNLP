@@ -23,5 +23,6 @@
     <orderEntry type="library" name="Maven: javax.json:javax.json-api:1.0" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.12" level="project" />
     <orderEntry type="library" name="Maven: edu.stanford.nlp:stanford-corenlp:models:3.6.0" level="project" />
+    <orderEntry type="library" name="ws4j-1.0.1" level="project" />
   </component>
 </module>

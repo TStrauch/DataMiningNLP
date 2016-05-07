@@ -1,8 +1,6 @@
 package dependency.parser;
 
 import dependency.SemanticGraphEdgeEvaluator;
-import dependency.extension.DependencyExtensionAspect;
-import dependency.extension.DependencyExtensionModifier;
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.semgraph.SemanticGraphEdge;
 import edu.stanford.nlp.trees.GrammaticalRelation;
@@ -10,22 +8,20 @@ import model.ExtractedAspectAndModifier;
 import model.GovernorDependent;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Timo on 04.05.16.
  */
 public class DepComplementCopularVerb extends SemanticGraphEdgeEvaluator {
-    public ArrayList<ExtractedAspectAndModifier> result;
-
     private static final String NSUBJ = "nsubj";
     private static final String COP = "cop";
 
     private ArrayList<GovernorDependent> tmpNsubjDependencies = new ArrayList<GovernorDependent>();
     private ArrayList<GovernorDependent> tmpCopDependencies = new ArrayList<GovernorDependent>();
+    private ArrayList<ExtractedAspectAndModifier> result;
 
-    public DepComplementCopularVerb(ArrayList<ExtractedAspectAndModifier> result){
-        this.result = result;
+    public DepComplementCopularVerb(ArrayList<ExtractedAspectAndModifier> input){
+        this.result = input;
     }
 
     public void evalSemanticGraphEdge(SemanticGraphEdge edge) {
@@ -51,10 +47,10 @@ public class DepComplementCopularVerb extends SemanticGraphEdgeEvaluator {
                     String aspectExtension = this.getExtensionsAspect(nsubjDep.dep);
                     String modifierExtension = this.getExtensionsModifier(nsubjDep.gov);
 
-                    ExtractedAspectAndModifier tuple = new ExtractedAspectAndModifier();
-                    tuple.aspect = aspectExtension + nsubjDep.dep.word();
-                    tuple.modifier = modifierExtension + nsubjDep.gov.word();
-                    result.add(tuple);
+                    ExtractedAspectAndModifier tuple = new ExtractedAspectAndModifier(nsubjDep.dep, nsubjDep.gov);
+                    tuple.setExtensions(aspectExtension, modifierExtension);
+
+                    this.result.add(tuple);
                 }
             }
         }

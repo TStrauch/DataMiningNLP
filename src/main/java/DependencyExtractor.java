@@ -1,3 +1,4 @@
+import cleansing.CleanReviews;
 import dependency.SemanticGraphEdgeEvaluator;
 import dependency.extension.*;
 import dependency.parser.DepAdjectivalModifier;
@@ -24,16 +25,14 @@ import java.util.*;
  */
 public class DependencyExtractor {
 
-    public static String reviewPath = "data/reviews.txt";
-
-    public ArrayList<ExtractedAspectAndModifier> result = new ArrayList<ExtractedAspectAndModifier>();
+    public static String reviewPath = "data/Phoenix_business -1bOb2izeJBZjHC7NWxiPA.csv";
 
     public static void main (String[] args) throws IOException {
         DependencyExtractor d = new DependencyExtractor();
-        d.extract();
+        System.out.println(d.pipe(new ArrayList<ExtractedAspectAndModifier>()));
     }
 
-    public void extract() throws IOException {
+    public ArrayList<ExtractedAspectAndModifier> pipe(ArrayList<ExtractedAspectAndModifier> input) throws IOException {
         /**
          * STANFORD CORE NLP pipeline
          */
@@ -53,6 +52,9 @@ public class DependencyExtractor {
             text = text.concat(line + "\n");
             line = reader.readLine();
         }
+
+        //run some cleansing operations
+        text = CleanReviews.clean(text);
 
         // create an empty Annotation just with the given text
         Annotation document = new Annotation(text);
@@ -79,10 +81,10 @@ public class DependencyExtractor {
         evaluators.add(depExtSimpleNegation);
         evaluators.add(depExtComplexNegation);
 
-        evaluators.add(new DepAdjectivalModifier(result));
-        evaluators.add(new DepDirectObjectAdjectivalComplement(result));
-        evaluators.add(new DepComplementCopularVerb(result));
-        evaluators.add(new DepAdverbialModifierPassiveVerb(result));
+        evaluators.add(new DepAdjectivalModifier(input));
+        evaluators.add(new DepDirectObjectAdjectivalComplement(input));
+        evaluators.add(new DepComplementCopularVerb(input));
+        evaluators.add(new DepAdverbialModifierPassiveVerb(input));
 
 
         //create all DependencyExtensionsAspects
@@ -101,17 +103,12 @@ public class DependencyExtractor {
         SemanticGraphEdgeEvaluator.dependencyExtensionModifiers = extensionsModifier;
 
 
-
+        //now extract the syntactical dependencies
         for(CoreMap sentence: sentences) {
 
 //            SemanticGraph dependencies = sentence.get(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class);
 //            SemanticGraph dependencies = sentence.get(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class);
             SemanticGraph dependencies = sentence.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class);
-
-            System.out.println("Sentence: "+sentence.toString());
-
-            System.out.println("DEPENDENCIES: \n"+dependencies.toList());
-//            System.out.println("DEPENDENCIES SIZE: "+dependencies.size());
 
             List<SemanticGraphEdge> edge_set1 = dependencies.edgeListSorted();
 //
@@ -128,10 +125,31 @@ public class DependencyExtractor {
             }
         }
 
-        System.out.println("Extracted Aspect-Modifier pairs:"+ result);
+        return input;
+
+//        System.out.println("Extracted Aspect-Modifier pairs:"+ ExtractionResult.getResult());
+
+
+
+
+
+
+        //now use ws4j to calculate a similarity value for each aspect-pair
+        //ressources:
+        // http://stackoverflow.com/questions/17166298/docs-for-java-ws4j-library
+
+
+//        Properties propsLemm = new Properties();
+//        propsLemm.put("annotators", "tokenize, ssplit, pos, lemma");
+//        pipeline = new StanfordCoreNLP(propsLemm);
+//        Annotation lemmaAnnotation = new Annotation(ExtractionResult.getAllAspectsString());
+//        pipeline.annotate(new Annotation(lemmaAnnotation));
+//
+//        List<CoreMap> lemmas = lemmaAnnotation.get(CoreAnnotations.SentencesAnnotation.class);
+//        for (CoreMap lemma: lemmas){
+//            System.out.println(lemma);
+//        }
+
     }
 
-    public void depAdjectivalModifier(List<SemanticGraphEdge> edgeSet){
-
-    }
 }

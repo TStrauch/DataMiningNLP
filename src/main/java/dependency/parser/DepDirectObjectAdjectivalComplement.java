@@ -1,8 +1,6 @@
 package dependency.parser;
 
 import dependency.SemanticGraphEdgeEvaluator;
-import dependency.extension.DependencyExtensionAspect;
-import dependency.extension.DependencyExtensionModifier;
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.semgraph.SemanticGraphEdge;
 import edu.stanford.nlp.trees.GrammaticalRelation;
@@ -10,14 +8,11 @@ import model.ExtractedAspectAndModifier;
 import model.GovernorDependent;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Timo on 04.05.16.
  */
 public class DepDirectObjectAdjectivalComplement extends SemanticGraphEdgeEvaluator {
-    public ArrayList<ExtractedAspectAndModifier> result;
-
     private static final String NSUBJ = "nsubj";
     private static final String XCOMP = "xcomp";
     private static final String DOBJ = "dobj";
@@ -25,10 +20,12 @@ public class DepDirectObjectAdjectivalComplement extends SemanticGraphEdgeEvalua
 
     private ArrayList<GovernorDependent> tmpNsubjDependencies = new ArrayList<GovernorDependent>();
     private ArrayList<GovernorDependent> tmpXcompDependencies = new ArrayList<GovernorDependent>();
+    private ArrayList<ExtractedAspectAndModifier> result;
 
-    public DepDirectObjectAdjectivalComplement(ArrayList<ExtractedAspectAndModifier> result){
-        this.result = result;
+    public DepDirectObjectAdjectivalComplement(ArrayList<ExtractedAspectAndModifier> input){
+        this.result = input;
     }
+
 
     public void evalSemanticGraphEdge(SemanticGraphEdge edge) {
         IndexedWord dep = edge.getDependent();
@@ -53,10 +50,10 @@ public class DepDirectObjectAdjectivalComplement extends SemanticGraphEdgeEvalua
                     String aspectExtension = this.getExtensionsAspect(nsubjDep.dep);
                     String modifierExtension = this.getExtensionsModifier(xcompDep.gov);
 
-                    ExtractedAspectAndModifier tuple = new ExtractedAspectAndModifier();
-                    tuple.aspect = aspectExtension + nsubjDep.dep.word();
-                    tuple.modifier = modifierExtension + xcompDep.dep.word();
-                    result.add(tuple);
+                    ExtractedAspectAndModifier tuple = new ExtractedAspectAndModifier(nsubjDep.dep, xcompDep.dep);
+                    tuple.setExtensions(aspectExtension, modifierExtension);
+
+                    this.result.add(tuple);
                 }
             }
         }
