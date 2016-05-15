@@ -8,7 +8,7 @@ import java.util.ArrayList;
  */
 public class ResultIntermediateNLP {
 
-    public static ArrayList<ExtractedAspectAndModifier> pipe(ArrayList<ExtractedAspectAndModifier> input){
+    public ArrayList<ExtractedAspectAndModifier> pipe(ArrayList<ExtractedAspectAndModifier> input){
         return new ResultIntermediateNLP().lemmatize(input);
     }
 

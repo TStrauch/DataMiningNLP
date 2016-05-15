@@ -1,3 +1,4 @@
+import model.AspectSimilarityDistanceModel;
 import model.ExtractedAspectAndModifier;
 import model.SimilarityPair;
 
@@ -15,10 +16,18 @@ public class Pipeline {
         result = new DependencyExtractor().pipe(result);
         result = new ResultIntermediateNLP().pipe(result);
 
-        List<SimilarityPair> similarityPairs = new SimilarityCalculator().pipeParallel(result);
+        int countAspects = result.size();
 
-        SimilarityPair.saveToFile(similarityPairs, "data/outputSimilarity.csv");
+        AspectSimilarityDistanceModel model = new SimilarityCalculator().pipe(result);
 
-        System.out.println(similarityPairs.size());
+        model.writeAspectFile("data/outputAspects.csv");
+        model.writeDistanceMatrix("data/outputDistanceMatrix.csv");
+
+//        SimilarityPair.saveToFile(similarityPairs, "data/outputSimilarity.csv");
+
+//        System.out.println(similarityPairs.size()+"; "+Math.sqrt(similarityPairs.size())+"; "+countAspects);
+//        SimilarityCalculator.createDistanceMatrix(similarityPairs);
+
+//        System.out.println(similarityPairs.size());
     }
 }

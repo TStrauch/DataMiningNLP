@@ -6,6 +6,7 @@ import edu.cmu.lti.ws4j.Relatedness;
 import edu.cmu.lti.ws4j.impl.JiangConrath;
 import edu.cmu.lti.ws4j.impl.WuPalmer;
 import edu.cmu.lti.ws4j.util.WS4JConfiguration;
+import model.AspectSimilarityDistanceModel;
 import model.ExtractedAspectAndModifier;
 import model.SimilarityPair;
 
@@ -33,10 +34,8 @@ public class SimilarityCalculator {
         testset.add(two);
         testset.add(three);
 
-        List<SimilarityPair> pipe = new SimilarityCalculator().pipe(testset);
-        for (SimilarityPair p : pipe){
-            System.out.println(p);
-        }
+        AspectSimilarityDistanceModel model = new SimilarityCalculator().pipe(testset);
+        System.out.println(model);
 
     }
 
@@ -45,8 +44,11 @@ public class SimilarityCalculator {
     }
 
 
-    public List<SimilarityPair> pipe(ArrayList<ExtractedAspectAndModifier> input){
+    public AspectSimilarityDistanceModel pipe(ArrayList<ExtractedAspectAndModifier> input){
         ArrayList<SimilarityPair> result = new ArrayList<SimilarityPair>();
+
+        AspectSimilarityDistanceModel model = new AspectSimilarityDistanceModel(input.size(), input);
+
 
         ILexicalDatabase db = new NictWordNet();
         JiangConrath jcn = new JiangConrath(db);
@@ -71,16 +73,27 @@ public class SimilarityCalculator {
 
                 double similarity = calcJCNSimilarity(db, jcn, firstAspect, secondAspect);
 
-                SimilarityPair sp = new SimilarityPair(first, second, similarity);
-                result.add(sp);
+//                SimilarityPair sp1 = new SimilarityPair(first, second, similarity);
+//                SimilarityPair sp2 = new SimilarityPair(second, first, similarity);
+//                result.add(sp1);
+//                result.add(sp2);
+                model.setDistance(f,s,1 - similarity);
+                model.setDistance(s,f,1 - similarity);
 
                 iteration++;
                 System.out.print("\r[SimilarityCalculator] "+iteration/total+"% ("+iteration+" / "+total+"); " +
                         "time elapsed: "+(System.currentTimeMillis()-startTime)/1000/60+"min");
             }
-        }
 
-        return result;
+//            SimilarityPair sp = new SimilarityPair(input.get(f), input.get(f), 1.0);
+//            result.add(sp);
+            model.setDistance(f,f,0.0);
+        }
+//        SimilarityPair sp = new SimilarityPair(input.get(input.size()-1), input.get(input.size()-1), 1.0);
+//        result.add(sp);
+        model.setDistance(input.size()-1, input.size()-1, 0.0);
+
+        return model;
     }
 
     public  List<SimilarityPair> pipeParallel(ArrayList<ExtractedAspectAndModifier> input){
@@ -91,6 +104,10 @@ public class SimilarityCalculator {
         while(working){
             try {
                 Thread.sleep(1000);
+
+                //add the very last tuple.
+                SimilarityPair sp = new SimilarityPair(input.get(input.size()-1), input.get(input.size()-1), 1.0);
+                result.add(sp);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -105,6 +122,10 @@ public class SimilarityCalculator {
         double res = 0.0;
         try{
             res = jcn.calcRelatednessOfSynset(synsets1.get(0), synsets2.get(0)).getScore();
+            if (res == 1.2876699500047589E7){
+                res = 1;
+            }
+//            res = res / 1.7976931348623157E308D;
         } catch(Exception e){}
         return res;
 //        double maxScoreJCN = -1D;
@@ -146,9 +167,16 @@ public class SimilarityCalculator {
 
                         double similarity = calcJCNSimilarity(db, jcn, firstAspect, secondAspect);
 
-                        SimilarityPair sp = new SimilarityPair(first, second, similarity);
-                        result.add(sp);
+                        SimilarityPair sp1 = new SimilarityPair(first, second, similarity);
+                        SimilarityPair sp2 = new SimilarityPair(second, first, similarity);
+
+
+
+                        result.add(sp1);
+                        result.add(sp2);
                     }
+                    SimilarityPair sp = new SimilarityPair(extractedAspects.get(index), extractedAspects.get(index), 1.0);
+                    result.add(sp);
                 }
             }
         };
@@ -176,6 +204,11 @@ public class SimilarityCalculator {
         }
         working = false;
         return -1;
+    }
+
+
+    public static AspectSimilarityDistanceModel createDistanceMatrix(List<SimilarityPair> pairs){
+        return null;
     }
 }
 
