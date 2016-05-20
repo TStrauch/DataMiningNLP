@@ -45,11 +45,11 @@ public class DepAdverbialModifierPassiveVerb extends SemanticGraphEdgeEvaluator 
 
                 if(nsubjpassDep.gov.equals(advmodDep.gov) && correctPOSTags(nsubjpassDep.dep, advmodDep.dep)){
 
-                    String aspectExtension = this.getExtensionsAspect(nsubjpassDep.dep);
-                    String modifierExtension = this.getExtensionsModifier(advmodDep.dep);
+                    ArrayList<IndexedWord> extensionsAspect = this.getExtensionsAspect(nsubjpassDep.dep);
+                    ArrayList<IndexedWord> extensionsModifier = this.getExtensionsModifier(advmodDep.dep);
 
                     ExtractedAspectAndModifier tuple = new ExtractedAspectAndModifier(nsubjpassDep.dep, advmodDep.dep);
-                    tuple.setExtensions(aspectExtension, modifierExtension);
+                    tuple.setExtensions(extensionsAspect, extensionsModifier);
 
                     this.result.add(tuple);
                 }

@@ -35,25 +35,25 @@ public abstract class SemanticGraphEdgeEvaluator {
         list.add(tmpTupel);
     }
 
-    protected String getExtensionsAspect(IndexedWord aspect){
-        String aspectExtension = "";
-        for (DependencyExtensionAspect extAspect: this.dependencyExtensionAspects){
-            String tmpext = extAspect.getExtension(aspect.word());
-            if (tmpext != null) {
-                aspectExtension = extAspect.getExtension(aspect.word()) + " " + aspectExtension;
+    protected ArrayList<IndexedWord> getExtensionsAspect(IndexedWord aspect){
+        ArrayList<IndexedWord> list = new ArrayList<IndexedWord>();
+        for (DependencyExtensionAspect extAspect: dependencyExtensionAspects){
+            ArrayList<IndexedWord> extensions = extAspect.getExtension(aspect.word());
+            if (extensions != null) {
+                list.addAll(extensions);
             }
         }
-        return aspectExtension;
+        return list;
     }
-    protected String getExtensionsModifier(IndexedWord modifier){
-        String modifierExtension = "";
-        for (DependencyExtensionModifier extModifier: this.dependencyExtensionModifiers){
-            String tmpext = extModifier.getExtension(modifier.word());
-            if (tmpext != null) {
-                modifierExtension = extModifier.getExtension(modifier.word()) + " " + modifierExtension;
+    protected ArrayList<IndexedWord> getExtensionsModifier(IndexedWord modifier){
+        ArrayList<IndexedWord> list = new ArrayList<IndexedWord>();
+        for (DependencyExtensionModifier extModifier: dependencyExtensionModifiers){
+            ArrayList<IndexedWord> extensions = extModifier.getExtension(modifier.word());
+            if (extensions != null) {
+                list.addAll(extensions);
             }
         }
-        return modifierExtension;
+        return list;
     }
 
 

@@ -4,15 +4,12 @@ import edu.cmu.lti.lexical_db.NictWordNet;
 import edu.cmu.lti.lexical_db.data.Concept;
 import edu.cmu.lti.ws4j.Relatedness;
 import edu.cmu.lti.ws4j.impl.JiangConrath;
-import edu.cmu.lti.ws4j.impl.WuPalmer;
 import edu.cmu.lti.ws4j.util.WS4JConfiguration;
 import model.AspectSimilarityDistanceModel;
 import model.ExtractedAspectAndModifier;
 import model.SimilarityPair;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Timo on 07.05.16.
@@ -26,15 +23,16 @@ public class SimilarityCalculator {
     public static void main(String[] args){
         ArrayList<ExtractedAspectAndModifier> testset = new ArrayList<ExtractedAspectAndModifier>();
 
-        ExtractedAspectAndModifier one = ExtractedAspectAndModifier.getMock("car");
-        ExtractedAspectAndModifier two = ExtractedAspectAndModifier.getMock("bike");
-        ExtractedAspectAndModifier three = ExtractedAspectAndModifier.getMock("train");
+        String s1 = "car";
+        String s2 = "bike";
+        String s3 = "train";
 
-        testset.add(one);
-        testset.add(two);
-        testset.add(three);
+        Set<String> set = new HashSet<String>();
+        set.add(s1);
+        set.add(s2);
+        set.add(s3);
 
-        AspectSimilarityDistanceModel model = new SimilarityCalculator().pipe(testset);
+        AspectSimilarityDistanceModel model = new SimilarityCalculator().pipe(set);
         System.out.println(model);
 
     }
@@ -44,10 +42,16 @@ public class SimilarityCalculator {
     }
 
 
-    public AspectSimilarityDistanceModel pipe(ArrayList<ExtractedAspectAndModifier> input){
+    public AspectSimilarityDistanceModel pipe(Set<String> input){
         ArrayList<SimilarityPair> result = new ArrayList<SimilarityPair>();
 
-        AspectSimilarityDistanceModel model = new AspectSimilarityDistanceModel(input.size(), input);
+        HashMap<Integer, String> mapIdAspect = new HashMap<Integer, String>();
+        int count = 0;
+        for (String s : input) {
+            mapIdAspect.put(count, s);
+            count++;
+        }
+        AspectSimilarityDistanceModel model = new AspectSimilarityDistanceModel(input.size(), mapIdAspect);
 
 
         ILexicalDatabase db = new NictWordNet();
@@ -58,18 +62,16 @@ public class SimilarityCalculator {
         int n = input.size() - 1;
         int total = n*(n+1)/2;
         long startTime = System.currentTimeMillis();
-        for (int f = 0; f < input.size()-1; f++){
-            for (int s = f+1; s < input.size(); s++){
 
-                if (s == f){
+        for (int f = 0; f < mapIdAspect.size()-1; f++){
+            for (int s = f+1; s < mapIdAspect.size(); s++){
+
+                if (s == f) {
                     continue;
                 }
 
-                ExtractedAspectAndModifier first = input.get(f);
-                ExtractedAspectAndModifier second = input.get(s);
-
-                String firstAspect = first.aspectLemma;
-                String secondAspect = second.aspectLemma;
+                String firstAspect = mapIdAspect.get(f);
+                String secondAspect = mapIdAspect.get(s);
 
                 double similarity = calcJCNSimilarity(db, jcn, firstAspect, secondAspect);
 
@@ -96,25 +98,25 @@ public class SimilarityCalculator {
         return model;
     }
 
-    public  List<SimilarityPair> pipeParallel(ArrayList<ExtractedAspectAndModifier> input){
-        extractedAspects = input;
-
-        this.runThreads();
-
-        while(working){
-            try {
-                Thread.sleep(1000);
-
-                //add the very last tuple.
-                SimilarityPair sp = new SimilarityPair(input.get(input.size()-1), input.get(input.size()-1), 1.0);
-                result.add(sp);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return result;
-    }
+//    public  List<SimilarityPair> pipeParallel(ArrayList<ExtractedAspectAndModifier> input){
+//        extractedAspects = input;
+//
+//        this.runThreads();
+//
+//        while(working){
+//            try {
+//                Thread.sleep(1000);
+//
+//                //add the very last tuple.
+//                SimilarityPair sp = new SimilarityPair(input.get(input.size()-1), input.get(input.size()-1), 1.0);
+//                result.add(sp);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        return result;
+//    }
 
     private static double calcJCNSimilarity(ILexicalDatabase db, JiangConrath jcn, String word1, String word2){
         List<Concept> synsets1 = (List<Concept>)db.getAllConcepts(word1, POS.n.toString());
@@ -162,8 +164,8 @@ public class SimilarityCalculator {
                         ExtractedAspectAndModifier first = extractedAspects.get(index);
                         ExtractedAspectAndModifier second = extractedAspects.get(s);
 
-                        String firstAspect = first.aspectLemma;
-                        String secondAspect = second.aspectLemma;
+                        String firstAspect = first.getAspectLemma();
+                        String secondAspect = second.getAspectLemma();
 
                         double similarity = calcJCNSimilarity(db, jcn, firstAspect, secondAspect);
 

@@ -11,13 +11,13 @@ public class ExtractedAspectAndModifier {
 
     private IndexedWord aspectIndexedWord;
     private IndexedWord modifierIndexWord;
-    private String aspectExtensions;
-    private String modifierExtensions;
+    private ArrayList<IndexedWord> aspectExtensions;
+    private ArrayList<IndexedWord> modifierExtensions;
 
-    public String aspectLemma;
 
     public static ExtractedAspectAndModifier getMock(String word){
         IndexedWord aspect = new IndexedWord();
+
         aspect.setWord(word);
         aspect.setTag("NN");
 
@@ -26,8 +26,7 @@ public class ExtractedAspectAndModifier {
         mod.setTag("JJ");
 
         ExtractedAspectAndModifier mock = new ExtractedAspectAndModifier(aspect, mod);
-        mock.setExtensions("","");
-        mock.aspectLemma = word;
+        mock.setExtensions(new ArrayList<IndexedWord>() ,new ArrayList<IndexedWord>());
 
         return mock;
     }
@@ -37,13 +36,25 @@ public class ExtractedAspectAndModifier {
         this.modifierIndexWord = mod;
     }
 
-    public void setExtensions(String aspExt, String modExt){
+    public void setExtensions(ArrayList<IndexedWord> aspExt, ArrayList<IndexedWord> modExt){
         this.aspectExtensions = aspExt;
         this.modifierExtensions = modExt;
     }
 
-    public String getFullAspect(){
-        return this.aspectExtensions + this.aspectIndexedWord.word();
+    public IndexedWord getAspectIndexedWord() {
+        return aspectIndexedWord;
+    }
+
+    public IndexedWord getModifierIndexWord() {
+        return modifierIndexWord;
+    }
+
+    public String getFullAspect(){String s = "";
+        for (IndexedWord modifierExtension : this.aspectExtensions) {
+            s += modifierExtension.word() + " " + s;
+        }
+
+        return s + this.aspectIndexedWord.word();
     }
     public String getInitialAspect(){
         return this.aspectIndexedWord.word();
@@ -52,7 +63,12 @@ public class ExtractedAspectAndModifier {
         return this.modifierIndexWord.word();
     }
     public String getFullModifier(){
-        return this.modifierExtensions + this.modifierIndexWord.word();
+        String s = "";
+        for (IndexedWord modifierExtension : this.modifierExtensions) {
+            s += modifierExtension.word() + " " + s;
+        }
+
+        return s + this.modifierIndexWord.word();
     }
     public String getAspectPOS(){
         return this.aspectIndexedWord.tag();
@@ -60,13 +76,15 @@ public class ExtractedAspectAndModifier {
     public String getModifierPOS(){
         return this.modifierIndexWord.tag();
     }
+    public String getAspectLemma(){ return this.aspectIndexedWord.lemma(); }
+    public String getModifierLemma(){ return this.modifierIndexWord.lemma(); }
 
     public String toString(){
         return "("+this.getFullModifier()+", "+this.getFullAspect()+")";
     }
     public String toString(String type){
         if(type.equals("lemma")){
-            return "("+this.getFullModifier()+", "+this.getFullAspect()+", "+aspectLemma+")";
+            return "("+this.getFullModifier()+", "+this.getFullAspect()+")";
         }
         return "("+this.getFullModifier()+", "+this.getFullAspect()+")";
     }

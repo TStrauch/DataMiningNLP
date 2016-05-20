@@ -5,6 +5,7 @@ import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.semgraph.SemanticGraphEdge;
 import edu.stanford.nlp.trees.GrammaticalRelation;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -14,7 +15,7 @@ public class DepExtAdverbialModifier extends SemanticGraphEdgeEvaluator implemen
 
     public static final String ADVMOD = "advmod";
 
-    private HashMap<String, String> tmpAdvmodDependencies = new HashMap();
+    private HashMap<String, ArrayList<IndexedWord>> tmpAdvmodDependencies = new HashMap();
 
     public void evalSemanticGraphEdge(SemanticGraphEdge edge) {
         IndexedWord dep = edge.getDependent();
@@ -22,7 +23,12 @@ public class DepExtAdverbialModifier extends SemanticGraphEdgeEvaluator implemen
         GrammaticalRelation relation = edge.getRelation();
 
         if(relation.toString().equals(ADVMOD)){
-            this.tmpAdvmodDependencies.put(gov.word(), dep.word());
+            ArrayList<IndexedWord> indexedWords = this.tmpAdvmodDependencies.get(gov.word());
+            if (indexedWords == null){
+                indexedWords = new ArrayList<IndexedWord>();
+                this.tmpAdvmodDependencies.put(gov.word(), indexedWords);
+            }
+            indexedWords.add(dep);
         }
     }
 
@@ -34,7 +40,7 @@ public class DepExtAdverbialModifier extends SemanticGraphEdgeEvaluator implemen
         this.tmpAdvmodDependencies.clear();
     }
 
-    public String getExtension(String word) {
+    public ArrayList<IndexedWord> getExtension(String word) {
         return this.tmpAdvmodDependencies.get(word);
     }
 }

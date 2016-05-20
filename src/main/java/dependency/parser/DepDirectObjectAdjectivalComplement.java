@@ -47,11 +47,11 @@ public class DepDirectObjectAdjectivalComplement extends SemanticGraphEdgeEvalua
 
                 if(nsubjDep.gov.equals(xcompDep.gov) && correctPOSTags(nsubjDep.dep, xcompDep.dep)){
 
-                    String aspectExtension = this.getExtensionsAspect(nsubjDep.dep);
-                    String modifierExtension = this.getExtensionsModifier(xcompDep.gov);
+                    ArrayList<IndexedWord> extensionsAspect = this.getExtensionsAspect(nsubjDep.dep);
+                    ArrayList<IndexedWord> extensionsModifier = this.getExtensionsModifier(xcompDep.gov);
 
                     ExtractedAspectAndModifier tuple = new ExtractedAspectAndModifier(nsubjDep.dep, xcompDep.dep);
-                    tuple.setExtensions(aspectExtension, modifierExtension);
+                    tuple.setExtensions(extensionsAspect, extensionsModifier);
 
                     this.result.add(tuple);
                 }

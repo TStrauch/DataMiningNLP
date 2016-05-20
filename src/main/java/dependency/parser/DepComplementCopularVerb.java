@@ -44,11 +44,11 @@ public class DepComplementCopularVerb extends SemanticGraphEdgeEvaluator {
 
                 if(nsubjDep.gov.equals(copDep.gov) && correctPOSTags(nsubjDep.dep, nsubjDep.gov)){
 
-                    String aspectExtension = this.getExtensionsAspect(nsubjDep.dep);
-                    String modifierExtension = this.getExtensionsModifier(nsubjDep.gov);
+                    ArrayList<IndexedWord> extensionsAspect = this.getExtensionsAspect(nsubjDep.dep);
+                    ArrayList<IndexedWord> extensionsModifier = this.getExtensionsModifier(nsubjDep.gov);
 
                     ExtractedAspectAndModifier tuple = new ExtractedAspectAndModifier(nsubjDep.dep, nsubjDep.gov);
-                    tuple.setExtensions(aspectExtension, modifierExtension);
+                    tuple.setExtensions(extensionsAspect, extensionsModifier);
 
                     this.result.add(tuple);
                 }

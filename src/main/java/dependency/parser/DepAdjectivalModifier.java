@@ -38,11 +38,11 @@ public class DepAdjectivalModifier extends SemanticGraphEdgeEvaluator {
         for (GovernorDependent amodDep: this.tmpAmodDependencies){
             if(correctPOSTags(amodDep.gov,amodDep.dep)){
 
-                String aspectExtension = this.getExtensionsAspect(amodDep.gov);
-                String modifierExtension = this.getExtensionsModifier(amodDep.dep);
+                ArrayList<IndexedWord> extensionsAspect = this.getExtensionsAspect(amodDep.gov);
+                ArrayList<IndexedWord> extensionsModifier = this.getExtensionsModifier(amodDep.dep);
 
                 ExtractedAspectAndModifier tuple = new ExtractedAspectAndModifier(amodDep.gov, amodDep.dep);
-                tuple.setExtensions(aspectExtension, modifierExtension);
+                tuple.setExtensions(extensionsAspect, extensionsModifier);
 
                 this.result.add(tuple);
             }

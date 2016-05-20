@@ -41,7 +41,7 @@ public class DependencyExtractor {
 
 
         Properties props = new Properties();
-        props.put("annotators", "tokenize, ssplit, pos, depparse");
+        props.put("annotators", "tokenize, ssplit, pos, depparse, lemma");
         pipeline = new StanfordCoreNLP(props);
 
         // read data

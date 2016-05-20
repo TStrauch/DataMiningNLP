@@ -5,6 +5,7 @@ import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.semgraph.SemanticGraphEdge;
 import edu.stanford.nlp.trees.GrammaticalRelation;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -34,13 +35,23 @@ public class DepExtSimpleNegation extends SemanticGraphEdgeEvaluator implements 
         this.tmpNegDependencies.clear();
     }
 
-    public String getExtension(String word) {
+    public ArrayList<IndexedWord> getExtension(String word) {
         if(this.tmpNegDependencies.get(word) != null){
             if (this.tmpNegDependencies.get(word).equals("no")){
-                return "no";
+                IndexedWord w = new IndexedWord();
+                w.setWord("no");
+                w.setLemma("no");
+                ArrayList<IndexedWord> l = new ArrayList<IndexedWord>();
+                l.add(w);
+                return l;
             }
             else {
-                return "not";
+                IndexedWord w = new IndexedWord();
+                w.setWord("not");
+                w.setLemma("not");
+                ArrayList<IndexedWord> l = new ArrayList<IndexedWord>();
+                l.add(w);
+                return l;
             }
         }
         return null;

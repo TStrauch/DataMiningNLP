@@ -21,6 +21,38 @@
             <classifier>models</classifier>
         </dependency>
 
+        <dependency>
+            <groupId>net.sf.jung</groupId>
+            <artifactId>jung-algorithms</artifactId>
+            <version>2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.jung</groupId>
+            <artifactId>jung-api</artifactId>
+            <version>2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.jung</groupId>
+            <artifactId>jung-graph-impl</artifactId>
+            <version>2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.jung</groupId>
+            <artifactId>jung-io</artifactId>
+            <version>2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.jung</groupId>
+            <artifactId>jung-samples</artifactId>
+            <version>2.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jgrapht</groupId>
+            <artifactId>jgrapht-core</artifactId>
+            <version>0.9.2</version>
+        </dependency>
+
     </dependencies>
 
 </project>

@@ -5,6 +5,7 @@ import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.semgraph.SemanticGraphEdge;
 import edu.stanford.nlp.trees.GrammaticalRelation;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -15,7 +16,7 @@ public class DepExtCompoundNoun extends SemanticGraphEdgeEvaluator implements De
 
     public static final String COMPOUND = "compound";
 
-    private HashMap<String, String> tmpCompoundDependencies = new HashMap();
+    private HashMap<String, ArrayList<IndexedWord>> tmpCompoundDependencies = new HashMap();
 
     public void evalSemanticGraphEdge(SemanticGraphEdge edge) {
         IndexedWord dep = edge.getDependent();
@@ -23,7 +24,12 @@ public class DepExtCompoundNoun extends SemanticGraphEdgeEvaluator implements De
         GrammaticalRelation relation = edge.getRelation();
 
         if(relation.toString().equals(COMPOUND)){
-            this.tmpCompoundDependencies.put(gov.word(), dep.word());
+            ArrayList<IndexedWord> indexedWords = this.tmpCompoundDependencies.get(gov.word());
+            if (indexedWords == null){
+                indexedWords = new ArrayList<IndexedWord>();
+                this.tmpCompoundDependencies.put(gov.word(), indexedWords);
+            }
+            indexedWords.add(dep);
         }
     }
 
@@ -35,7 +41,7 @@ public class DepExtCompoundNoun extends SemanticGraphEdgeEvaluator implements De
         this.tmpCompoundDependencies.clear();
     }
 
-    public String getExtension(String word) {
+    public ArrayList<IndexedWord> getExtension(String word) {
         return this.tmpCompoundDependencies.get(word);
     }
 }

@@ -58,9 +58,14 @@ public class DepExtComplexNegation extends SemanticGraphEdgeEvaluator implements
         this.implicitNegations.clear();
     }
 
-    public String getExtension(String word) {
+    public ArrayList<IndexedWord> getExtension(String word) {
         if (this.implicitNegations.contains(word)){
-            return "not";
+            IndexedWord w = new IndexedWord();
+            w.setWord("not");
+            w.setLemma("not");
+            ArrayList<IndexedWord> l = new ArrayList<IndexedWord>();
+            l.add(w);
+            return l;
         }
         return null;
     }
