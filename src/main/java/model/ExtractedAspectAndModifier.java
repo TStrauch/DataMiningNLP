@@ -70,6 +70,15 @@ public class ExtractedAspectAndModifier {
 
         return s + this.modifierIndexWord.word();
     }
+    
+    public ArrayList<IndexedWord> getModifierExtension(){
+    	return this.modifierExtensions;
+    }
+    
+    public ArrayList<IndexedWord> getAspectExtension(){
+    	return this.aspectExtensions;
+    }
+    
     public String getAspectPOS(){
         return this.aspectIndexedWord.tag();
     }
