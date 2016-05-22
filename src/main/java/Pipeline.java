@@ -27,6 +27,15 @@ public class Pipeline {
          */
         result = new DependencyExtractor().pipe(result);
         result = new ResultIntermediateNLP().pipe(result);
+        
+        ArrayList<ExtractedAspectAndModifier> sentimentScores = SentimentCalculator.generateSentimenScore(result); 
+        /*int ctr = 0;
+        for (ExtractedAspectAndModifier aspect : sentimentScores){
+        	if (ctr > 40)
+        		break;
+        	System.out.println("Aspect: " + aspect.getInitialAspect() + " with Score " + aspect.getSentimentScore());
+        	ctr++;
+        }*/
 
         //now create a new datastructure that will also be useful when trying to match sentiment values with cluster-ids. = aspectLemma --> object
         HashMap<String, ArrayList<ExtractedAspectAndModifier>> mapAspectLemmaExtractedAspectAndModifier = ResultIntermediateNLP.createConsolidatedDatastructure(result);

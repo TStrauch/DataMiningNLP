@@ -13,6 +13,7 @@ public class ExtractedAspectAndModifier {
     private IndexedWord modifierIndexWord;
     private ArrayList<IndexedWord> aspectExtensions;
     private ArrayList<IndexedWord> modifierExtensions;
+    private double aspectSentimentScore;
 
 
     public static ExtractedAspectAndModifier getMock(String word){
@@ -34,6 +35,7 @@ public class ExtractedAspectAndModifier {
     public ExtractedAspectAndModifier(IndexedWord asp, IndexedWord mod){
         this.aspectIndexedWord = asp;
         this.modifierIndexWord = mod;
+        this.aspectSentimentScore = 0.0;
     }
 
     public void setExtensions(ArrayList<IndexedWord> aspExt, ArrayList<IndexedWord> modExt){
@@ -96,5 +98,13 @@ public class ExtractedAspectAndModifier {
             return "("+this.getFullModifier()+", "+this.getFullAspect()+")";
         }
         return "("+this.getFullModifier()+", "+this.getFullAspect()+")";
+    }
+    
+    public double getSentimentScore(){
+    	return aspectSentimentScore;
+    }
+    
+    public void setSentimentScore(double score){
+    	aspectSentimentScore = score;
     }
 }
