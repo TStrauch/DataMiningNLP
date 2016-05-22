@@ -56,7 +56,14 @@ public abstract class SemanticGraphEdgeEvaluator {
         return list;
     }
 
-
+    private boolean isVerb(IndexedWord verb){
+    	return verb.tag().toString().equals("VB")
+    			||verb.tag().toString().equals("VBD")
+    			||verb.tag().toString().equals("VBG")
+    			||verb.tag().toString().equals("VBN")
+    			||verb.tag().toString().equals("VBP")
+    			||verb.tag().toString().equals("VBZ");
+    }
 
     private boolean isNoun(IndexedWord noun){
         return noun.tag().toString().equals("NN")
