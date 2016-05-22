@@ -23,12 +23,16 @@ public class Pipeline {
 
         AspectSimilarityDistanceModel model = new SimilarityCalculator().pipe(mapAspectLemmaExtractedAspectAndModifier.keySet());
 
-        createFilesForClustering(model);
+        DbscanClustering clusterer = new DbscanClustering(model);
+        clusterer.cluster();
 
-        GraphClustering graphClustering = new GraphClustering(model);
-        graphClustering.createSampledGraph();
-        graphClustering.createMinimumSpanningTree();
-        graphClustering.savePajekNetMinimumSpanningTree("data/output/aspectNetPhoenixBusiness.net");
+
+//        createFilesForClustering(model);
+//
+//        GraphClustering graphClustering = new GraphClustering(model);
+//        graphClustering.createSampledGraph();
+//        graphClustering.createMinimumSpanningTree();
+//        graphClustering.savePajekNetMinimumSpanningTree("data/output/aspectNetPhoenixBusiness.net");
 
 
 //        createFilesForClustering(mapAspectLemmaExtractedAspectAndModifier);
