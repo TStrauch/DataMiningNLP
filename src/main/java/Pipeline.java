@@ -14,7 +14,17 @@ import java.util.List;
 public class Pipeline {
     public static void main(String[] args) throws IOException {
         ArrayList<ExtractedAspectAndModifier> result = new ArrayList<ExtractedAspectAndModifier>();
-
+        
+        //read business reviews
+        HashMap<String, String> reviewsPerBusiness = ReviewCollector.readData("data/Phoenix_reviews_per_business_BarsRestCafes_CHINESE.csv");
+        
+        //go throguh all businesses and perform pipeline actions on them?
+        /*
+         * for (HashMap.Entry<String, String> entry : reviewsPerBusiness.entrySet()) {
+				String businessID = entry.getKey();
+			    String reviewText = entry.getValue();
+			}
+         */
         result = new DependencyExtractor().pipe(result);
         result = new ResultIntermediateNLP().pipe(result);
 
