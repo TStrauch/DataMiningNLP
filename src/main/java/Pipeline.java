@@ -17,7 +17,19 @@ public class Pipeline {
         
         //read business reviews
         HashMap<String, String> reviewsPerBusiness = ReviewCollector.readData("data/Phoenix_reviews_per_business_BarsRestCafes_CHINESE.csv");
-        
+
+        String reviews = "";
+        int counter = 0;
+        for (String businessReviews : reviewsPerBusiness.values()) {
+            reviews += businessReviews;
+            counter++;
+
+            if (counter == 5){
+                break;
+            }
+        }
+
+
         //go throguh all businesses and perform pipeline actions on them?
         /*
          * for (HashMap.Entry<String, String> entry : reviewsPerBusiness.entrySet()) {
@@ -25,7 +37,7 @@ public class Pipeline {
 			    String reviewText = entry.getValue();
 			}
          */
-        result = new DependencyExtractor().pipe(result);
+        result = new DependencyExtractor().pipe(result, reviews);
         result = new ResultIntermediateNLP().pipe(result);
 
         //now create a new datastructure that will also be useful when trying to match sentiment values with cluster-ids. = aspectLemma --> object
@@ -34,7 +46,9 @@ public class Pipeline {
         AspectSimilarityDistanceModel model = new SimilarityCalculator().pipe(mapAspectLemmaExtractedAspectAndModifier.keySet());
 
         DbscanClustering clusterer = new DbscanClustering(model);
-        clusterer.cluster();
+        clusterer.removeOutliersWriterClusteringFiles("data/output/aspectsDbscanFiltered.txt", "data/output/distancesDbscanFiltered.txt");
+
+//        clusterer.cluster();
 
 
 //        createFilesForClustering(model);

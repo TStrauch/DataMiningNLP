@@ -29,10 +29,10 @@ public class DependencyExtractor {
 
     public static void main (String[] args) throws IOException {
         DependencyExtractor d = new DependencyExtractor();
-        System.out.println(d.pipe(new ArrayList<ExtractedAspectAndModifier>()));
+//        System.out.println(d.pipe(new ArrayList<ExtractedAspectAndModifier>()));
     }
 
-    public ArrayList<ExtractedAspectAndModifier> pipe(ArrayList<ExtractedAspectAndModifier> input) throws IOException {
+    public ArrayList<ExtractedAspectAndModifier> pipe(ArrayList<ExtractedAspectAndModifier> input, String reviewText) throws IOException {
         /**
          * STANFORD CORE NLP pipeline
          */
@@ -45,19 +45,19 @@ public class DependencyExtractor {
         pipeline = new StanfordCoreNLP(props);
 
         // read data
-        BufferedReader reader = new BufferedReader(new FileReader(new File(reviewPath)));
-        String text = "";
-        String line = reader.readLine();
-        while (line != null){
-            text = text.concat(line + "\n");
-            line = reader.readLine();
-        }
+//        BufferedReader reader = new BufferedReader(new FileReader(new File(reviewPath)));
+//        String text = "";
+//        String line = reader.readLine();
+//        while (line != null){
+//            text = text.concat(line + "\n");
+//            line = reader.readLine();
+//        }
 
         //run some cleansing operations
-        text = CleanReviews.clean(text);
+//        text = CleanReviews.clean(text);
 
         // create an empty Annotation just with the given text
-        Annotation document = new Annotation(text);
+        Annotation document = new Annotation(reviewText);
 
         // run all Annotators on this text
         pipeline.annotate(document);
