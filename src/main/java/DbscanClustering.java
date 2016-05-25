@@ -28,7 +28,7 @@ public class DbscanClustering {
     private double[][] distances;
     private HashMap<Integer, String> aspects;
 
-    private static final double FILTERING_EPS = 0.85;
+    private static final double FILTERING_EPS = 0.80;
     private static final int FILTERING_MINPTS = 4;
 
     public DbscanClustering(AspectSimilarityDistanceModel model){
@@ -79,7 +79,6 @@ public class DbscanClustering {
                 mapOldToNewId.put(newId, id1);
                 newId++;
             }
-            System.out.println("\n");
         }
         writerAspects.close();
 
@@ -94,10 +93,6 @@ public class DbscanClustering {
                 Integer oldId2 = mapOldToNewId.get(newId2);
 
                 double distance = this.distances[oldId1][oldId2];
-
-                if(distance == 0.0){
-                    System.out.println("");
-                }
 
                 newDistances[newId1][newId2] = distance;
             }

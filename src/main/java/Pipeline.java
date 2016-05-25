@@ -1,12 +1,10 @@
 import model.AspectSimilarityDistanceModel;
 import model.ExtractedAspectAndModifier;
-import model.SimilarityPair;
 
-import javax.xml.transform.Result;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Timo on 07.05.16.
@@ -24,41 +22,38 @@ public class Pipeline {
             reviews += businessReviews;
             counter++;
 
-            if (counter == 5){
+            if (counter == 13){
                 break;
             }
         }
 
-
-        //go throguh all businesses and perform pipeline actions on them?
-        /*
-         * for (HashMap.Entry<String, String> entry : reviewsPerBusiness.entrySet()) {
-				String businessID = entry.getKey();
-			    String reviewText = entry.getValue();
-			}
-         */
         result = new DependencyExtractor().pipe(result, reviews);
-        result = new ResultIntermediateNLP().pipe(result);
-        
-        ArrayList<ExtractedAspectAndModifier> sentimentScores = SentimentCalculator.generateSentimenScore(result); 
-        /*int ctr = 0;
-        for (ExtractedAspectAndModifier aspect : sentimentScores){
-        	if (ctr > 40)
-        		break;
-        	System.out.println("Aspect: " + aspect.getInitialAspect() + " with Score " + aspect.getSentimentScore());
-        	ctr++;
-        }*/
+        result = new Util().pipe(result);
 
         //now create a new datastructure that will also be useful when trying to match sentiment values with cluster-ids. = aspectLemma --> object
-        HashMap<String, ArrayList<ExtractedAspectAndModifier>> mapAspectLemmaExtractedAspectAndModifier = ResultIntermediateNLP.createConsolidatedDatastructure(result);
+        HashMap<String, ArrayList<ExtractedAspectAndModifier>> mapAspectLemmaExtractedAspectAndModifier = Util.createConsolidatedDatastructure(result);
 
-        AspectSimilarityDistanceModel model = new SimilarityCalculator().pipe(mapAspectLemmaExtractedAspectAndModifier.keySet());
 
-        DbscanClustering clusterer = new DbscanClustering(model);
-        clusterer.removeOutliersWriterClusteringFiles("data/output/aspectsDbscanFiltered.txt", "data/output/distancesDbscanFiltered.txt");
+        /**
+         * create data files for clustering:
+         */
+//        AspectSimilarityDistanceModel model = new SimilarityCalculator().pipe(mapAspectLemmaExtractedAspectAndModifier.keySet());
+//
+//        DbscanClustering clusterer = new DbscanClustering(model);
+//        clusterer.removeOutliersWriterClusteringFiles("data/output/aspectsDbscanFiltered.txt", "data/output/distancesDbscanFiltered.txt");
 
-//        clusterer.cluster();
+        /**
+         * use clustering result
+         */
 
+        SentimentCalculator.assignSentimenScore(result);
+        Util.ClusteredAspectMaps clusteredAspectMaps = Util.createClusteredAspectMaps("data/clusteringresult/aspectClusterDbscanFiltered.csv", "data/output/aspectsDbscanFiltered.txt", mapAspectLemmaExtractedAspectAndModifier);
+
+        System.out.println(clusteredAspectMaps);
+
+        Map<ExtractedAspectAndModifier, Double> clustersSortedBySentimentMap = Util.getMostPositiveAndNegativeClusters(clusteredAspectMaps);
+
+        System.out.println(clustersSortedBySentimentMap);
 
 //        createFilesForClustering(model);
 //

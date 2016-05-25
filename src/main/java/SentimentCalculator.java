@@ -16,7 +16,7 @@ public class SentimentCalculator {
 
 	}
 	
-	public static ArrayList<ExtractedAspectAndModifier> generateSentimenScore(ArrayList<ExtractedAspectAndModifier> allWords) throws IOException{
+	public static ArrayList<ExtractedAspectAndModifier> assignSentimenScore(ArrayList<ExtractedAspectAndModifier> allWords) throws IOException{
 		ArrayList<IndexedWord> allModifiers;
 		LinkedHashMap<IndexedWord, Double> modsWithScore;
 		ArrayList<ExtractedAspectAndModifier> aspectsWithScore = new ArrayList<ExtractedAspectAndModifier>();
