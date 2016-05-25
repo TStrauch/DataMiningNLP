@@ -10,15 +10,15 @@ import java.util.stream.Stream;
  */
 public class Util {
 
-    public ArrayList<ExtractedAspectAndModifier> pipe(ArrayList<ExtractedAspectAndModifier> input){
+    public HashMap<String, ArrayList<ExtractedAspectAndModifier>> pipe(HashMap<String, ArrayList<ExtractedAspectAndModifier>> input){
         return input;
     }
 
-    public static HashMap<String, ArrayList<ExtractedAspectAndModifier>> createConsolidatedDatastructure(ArrayList<ExtractedAspectAndModifier> input){
+    public static HashMap<String, ArrayList<ExtractedAspectAndModifier>> createConsolidatedDatastructure(HashMap<String, ArrayList<ExtractedAspectAndModifier>> input){
         HashMap<String, ArrayList<ExtractedAspectAndModifier>> consolidation = new HashMap<String, ArrayList<ExtractedAspectAndModifier>>();
 
-        for (ExtractedAspectAndModifier tuple : input) {
-
+        for (ArrayList<ExtractedAspectAndModifier> aspectsPerBusiness : input.values()){
+          for (ExtractedAspectAndModifier tuple : aspectsPerBusiness) {
             ArrayList<ExtractedAspectAndModifier> extractedAspectAndModifierList = consolidation.get(tuple.getAspectLemma());
             if (extractedAspectAndModifierList == null){
                 extractedAspectAndModifierList = new ArrayList<ExtractedAspectAndModifier>();
@@ -28,7 +28,7 @@ public class Util {
             else{
                 extractedAspectAndModifierList.add(tuple);
             }
-
+          }
         }
 
         return consolidation;

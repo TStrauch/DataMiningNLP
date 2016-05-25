@@ -16,16 +16,20 @@ public class SentimentCalculator {
 
 	}
 	
-	public static ArrayList<ExtractedAspectAndModifier> assignSentimenScore(ArrayList<ExtractedAspectAndModifier> allWords) throws IOException{
+	public static HashMap<String, ArrayList<ExtractedAspectAndModifier>> assignSentimenScore(HashMap<String, ArrayList<ExtractedAspectAndModifier>> allBusinesses) throws IOException{
 		ArrayList<IndexedWord> allModifiers;
 		LinkedHashMap<IndexedWord, Double> modsWithScore;
-		ArrayList<ExtractedAspectAndModifier> aspectsWithScore = new ArrayList<ExtractedAspectAndModifier>();
+		ArrayList<ExtractedAspectAndModifier> aspectsWithScore;
 		
 		//Initialize Sentiment lexicon
 		SWNExtractor dictionary = new SWNExtractor();
 		
-		//loop through allWords
-		for (ExtractedAspectAndModifier modAspect : allWords){
+		//loop through allWords per Business
+		for (HashMap.Entry<String, ArrayList<ExtractedAspectAndModifier>> allWords : allBusinesses.entrySet()){
+		  //Initialize ArrayList of modified words for each business
+		  aspectsWithScore = new ArrayList<ExtractedAspectAndModifier>();
+			
+		  for (ExtractedAspectAndModifier modAspect : allWords.getValue()){
 			allModifiers = new ArrayList<IndexedWord>();
 			modsWithScore = new LinkedHashMap<IndexedWord, Double>();
 			
@@ -35,7 +39,9 @@ public class SentimentCalculator {
 			
 			//loop over modifier words
 			for(IndexedWord mod : allModifiers){
-				// use pos-tagger/stemmer/sth?
+				//run a stemmer / lemmatizer / synonymizer / etc. on each word
+		        //access the sentiment lexicon and get a value per word (maybe use different versions: 1. original, 2. stemmed, 3. synomized to make sure to get a result)
+		        //take the sentiment values and combine them in a sensible way (e.g. weigh the right-most adjective higher etc)
 				String word = mod.lemma();
 				String wordTypeMarker = getWordType(mod); //based on mod.tag() 
 				
@@ -43,6 +49,7 @@ public class SentimentCalculator {
 				double score;
 				if (wordTypeMarker.equals("")) {
 					//No wordtype determined
+					//TODO we could check with synonyms, original-version etc.?
 					score = 0.0;
 				} else {
 					score = dictionary.extract(word, wordTypeMarker);					
@@ -55,9 +62,11 @@ public class SentimentCalculator {
 			//calculate overall Sentiment Score for the aspect!
 			modAspect.setSentimentScore(calculateFinalScore(modsWithScore));
 			aspectsWithScore.add(modAspect);			
+		  }
+		  allBusinesses.put(allWords.getKey(), aspectsWithScore);
 		}
 		
-		return aspectsWithScore;
+		return allBusinesses;
 	}
 	
 	private static Double calculateFinalScore(LinkedHashMap<IndexedWord, Double> modsWithScore){

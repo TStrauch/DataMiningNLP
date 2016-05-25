@@ -11,26 +11,21 @@ import java.util.Map;
  */
 public class Pipeline {
     public static void main(String[] args) throws IOException {
-        ArrayList<ExtractedAspectAndModifier> result = new ArrayList<ExtractedAspectAndModifier>();
+        HashMap<String, ArrayList<ExtractedAspectAndModifier>> result = new HashMap<String, ArrayList<ExtractedAspectAndModifier>>();
         
         //read business reviews
+        //returns HashMap with <businessID, reviewText>
         HashMap<String, String> reviewsPerBusiness = ReviewCollector.readData("data/Phoenix_reviews_per_business_BarsRestCafes_CHINESE.csv");
-
-        String reviews = "";
-        int counter = 0;
-        for (String businessReviews : reviewsPerBusiness.values()) {
-            reviews += businessReviews;
-            counter++;
-
-            if (counter == 13){
-                break;
-            }
-        }
-
-        result = new DependencyExtractor().pipe(result, reviews);
+        
+        //Create List of aspects per Business via dependency extractor
+        result = new DependencyExtractor().pipe(result, reviewsPerBusiness);
         result = new Util().pipe(result);
+        
+        //Calculates sentiment value for each Extracted Aspect per Business and add attribute to aspect object
+        result = SentimentCalculator.assignSentimenScore(result);
 
         //now create a new datastructure that will also be useful when trying to match sentiment values with cluster-ids. = aspectLemma --> object
+        //no connection to businesses needed?
         HashMap<String, ArrayList<ExtractedAspectAndModifier>> mapAspectLemmaExtractedAspectAndModifier = Util.createConsolidatedDatastructure(result);
 
 
@@ -45,8 +40,11 @@ public class Pipeline {
         /**
          * use clustering result
          */
-
-        SentimentCalculator.assignSentimenScore(result);
+        
+        //execute clustering
+        PythonExec.executeScript("C:\\Users\\D059184\\Documents\\Master\\Data Mining\\DataSet_Project\\", "example_kMedoid.py", "WIN");
+        
+        
         Util.ClusteredAspectMaps clusteredAspectMaps = Util.createClusteredAspectMaps("data/clusteringresult/aspectClusterDbscanFiltered.csv", "data/output/aspectsDbscanFiltered.txt", mapAspectLemmaExtractedAspectAndModifier);
 
         System.out.println(clusteredAspectMaps);
@@ -74,16 +72,7 @@ public class Pipeline {
         //save the extracted info to the ExtractAspectAndModifier object
 
         //also create an index like so: clusterid --> word
-
-
-        //for sentiment analysis:
-        //http://stackoverflow.com/questions/4188706/sentiment-analysis-dictionaries
-        //loop through all ExtractAspectAndModifier objects
-        //take the sentimentModifier and split it at blank ' '
-        //run a stemmer / lemmatizer / synonymizer / etc. on each word
-        //access the sentiment lexicon and get a value per word (maybe use different versions: 1. original, 2. stemmed, 3. synomized to make sure to get a result)
-        //take the sentiment values and combine them in a sensible way (e.g. weigh the right-most adjective higher etc)
-
+        
 
         //combining it all:
         //now we have a sentiment value for each ExtractAspectAndModifier object
