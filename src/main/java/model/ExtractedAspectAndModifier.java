@@ -14,6 +14,8 @@ public class ExtractedAspectAndModifier {
     private ArrayList<IndexedWord> aspectExtensions;
     private ArrayList<IndexedWord> modifierExtensions;
     private double aspectSentimentScore;
+    private String sentenceSentiment;
+    private String businessId;
 
 
     public static ExtractedAspectAndModifier getMock(String word){
@@ -106,5 +108,21 @@ public class ExtractedAspectAndModifier {
     
     public void setSentimentScore(double score){
     	aspectSentimentScore = score;
+    }
+
+    public String getBusinessId() {
+        return businessId;
+    }
+
+    public void setBusinessId(String businessId) {
+        this.businessId = businessId;
+    }
+
+    public String getSentenceSentiment() {
+        return sentenceSentiment;
+    }
+
+    public void setSentenceSentiment(String sentenceSentiment) {
+        this.sentenceSentiment = sentenceSentiment;
     }
 }

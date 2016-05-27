@@ -22,7 +22,7 @@ public class DepExtComplexNegation extends SemanticGraphEdgeEvaluator implements
     private HashMap<String, String> tmpCopDependencies = new HashMap();
     private Set<String> implicitNegations = new HashSet<String>();
 
-    public void evalSemanticGraphEdge(SemanticGraphEdge edge) {
+    public void evalSemanticGraphEdge(SemanticGraphEdge edge, String sentenceSentiment) {
         IndexedWord dep = edge.getDependent();
         IndexedWord gov = edge.getGovernor();
         GrammaticalRelation relation = edge.getRelation();
@@ -41,7 +41,7 @@ public class DepExtComplexNegation extends SemanticGraphEdgeEvaluator implements
         }
     }
 
-    public void endOfSentence() {
+    public void endOfSentence(String sentenceSentiment) {
         for (String copKey: this.tmpCopDependencies.keySet()){
             ArrayList<String> auxs = this.tmpAuxDependencies.get(copKey);
             if (auxs != null){

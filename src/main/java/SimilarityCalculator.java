@@ -3,7 +3,10 @@ import edu.cmu.lti.lexical_db.ILexicalDatabase;
 import edu.cmu.lti.lexical_db.NictWordNet;
 import edu.cmu.lti.lexical_db.data.Concept;
 import edu.cmu.lti.ws4j.Relatedness;
+import edu.cmu.lti.ws4j.RelatednessCalculator;
+import edu.cmu.lti.ws4j.impl.HirstStOnge;
 import edu.cmu.lti.ws4j.impl.JiangConrath;
+import edu.cmu.lti.ws4j.impl.WuPalmer;
 import edu.cmu.lti.ws4j.util.WS4JConfiguration;
 import model.AspectSimilarityDistanceModel;
 import model.ExtractedAspectAndModifier;
@@ -56,6 +59,9 @@ public class SimilarityCalculator {
 
         ILexicalDatabase db = new NictWordNet();
         JiangConrath jcn = new JiangConrath(db);
+//        HirstStOnge jcn = new HirstStOnge(db);
+//        WuPalmer jcn = new WuPalmer(db);
+
         WS4JConfiguration.getInstance().setMFS(true);
 
         int iteration = 0;
@@ -118,7 +124,7 @@ public class SimilarityCalculator {
 //        return result;
 //    }
 
-    private static double calcJCNSimilarity(ILexicalDatabase db, JiangConrath jcn, String word1, String word2){
+    private static double calcJCNSimilarity(ILexicalDatabase db, RelatednessCalculator jcn, String word1, String word2){
         List<Concept> synsets1 = (List<Concept>)db.getAllConcepts(word1, POS.n.toString());
         List<Concept> synsets2 = (List<Concept>)db.getAllConcepts(word2, POS.n.toString());
         double res = 0.0;
@@ -143,7 +149,7 @@ public class SimilarityCalculator {
 //        if (maxScoreJCN == -1D) {
 //            maxScoreJCN = 0.0;
 //        }
-//
+
 //        return maxScoreJCN;
     }
 

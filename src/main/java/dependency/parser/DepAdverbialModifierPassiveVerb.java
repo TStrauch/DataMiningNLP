@@ -21,11 +21,15 @@ public class DepAdverbialModifierPassiveVerb extends SemanticGraphEdgeEvaluator 
     private ArrayList<GovernorDependent> tmpNsubjpassDependencies = new ArrayList<GovernorDependent>();
     private ArrayList<GovernorDependent> tmpAdvmodDependencies = new ArrayList<GovernorDependent>();
 
-    public DepAdverbialModifierPassiveVerb(ArrayList<ExtractedAspectAndModifier> input){
-        this.result = input;
+    public ArrayList<ExtractedAspectAndModifier> getResult() {
+        return result;
     }
 
-    public void evalSemanticGraphEdge(SemanticGraphEdge edge) {
+    public void setResult(ArrayList<ExtractedAspectAndModifier> result) {
+        this.result = result;
+    }
+
+    public void evalSemanticGraphEdge(SemanticGraphEdge edge, String sentenceSentiment) {
         IndexedWord dep = edge.getDependent();
         IndexedWord gov = edge.getGovernor();
         GrammaticalRelation relation = edge.getRelation();
@@ -38,7 +42,7 @@ public class DepAdverbialModifierPassiveVerb extends SemanticGraphEdgeEvaluator 
         }
     }
 
-    public void endOfSentence() {
+    public void endOfSentence(String sentenceSentiment) {
         for (GovernorDependent nsubjpassDep: this.tmpNsubjpassDependencies){
 
             for (GovernorDependent advmodDep: this.tmpAdvmodDependencies){
@@ -50,6 +54,8 @@ public class DepAdverbialModifierPassiveVerb extends SemanticGraphEdgeEvaluator 
 
                     ExtractedAspectAndModifier tuple = new ExtractedAspectAndModifier(nsubjpassDep.dep, advmodDep.dep);
                     tuple.setExtensions(extensionsAspect, extensionsModifier);
+
+                    tuple.setSentenceSentiment(sentenceSentiment);
 
                     this.result.add(tuple);
                 }

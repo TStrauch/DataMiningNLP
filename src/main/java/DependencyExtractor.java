@@ -11,6 +11,8 @@ import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.semgraph.SemanticGraph;
 import edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations;
 import edu.stanford.nlp.semgraph.SemanticGraphEdge;
+import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
+import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.CoreMap;
 import model.ExtractedAspectAndModifier;
 
@@ -32,7 +34,7 @@ public class DependencyExtractor {
 //        System.out.println(d.pipe(new ArrayList<ExtractedAspectAndModifier>()));
     }
 
-    public HashMap<String, ArrayList<ExtractedAspectAndModifier>> pipe(HashMap<String, ArrayList<ExtractedAspectAndModifier>> input, HashMap<String, String> reviewsPerBusiness) throws IOException {
+    public ArrayList<ExtractedAspectAndModifier> pipe(ArrayList<ExtractedAspectAndModifier> result, HashMap<String, String> reviewsPerBusiness) throws IOException {
         /**
          * STANFORD CORE NLP pipeline
          */
@@ -40,13 +42,64 @@ public class DependencyExtractor {
 
         Properties props = new Properties();
         props.put("annotators", "tokenize, ssplit, pos, depparse, lemma");
+//        props.put("annotators", "tokenize, ssplit, pos, parse, lemma, sentiment");
         pipeline = new StanfordCoreNLP(props);
+
+        //create all DependencyExtensions
+        DepExtCompoundNoun depExtCompoundNoun = new DepExtCompoundNoun();
+        DepExtAdverbialModifier depExtAdverbialModifier = new DepExtAdverbialModifier();
+        DepExtSimpleNegation depExtSimpleNegation = new DepExtSimpleNegation();
+        DepExtComplexNegation depExtComplexNegation = new DepExtComplexNegation();
+
+        //create all DependencyExtractors
+        DepAdjectivalModifier depAdjectivalModifier = new DepAdjectivalModifier();
+        DepDirectObjectAdjectivalComplement depDirectObjectAdjectivalComplement = new DepDirectObjectAdjectivalComplement();
+        DepComplementCopularVerb depComplementCopularVerb = new DepComplementCopularVerb();
+        DepAdverbialModifierPassiveVerb depAdverbialModifierPassiveVerb = new DepAdverbialModifierPassiveVerb();
+
+
+        //create all SemanticGraphEdgeEvaluators
+        ArrayList<SemanticGraphEdgeEvaluator> evaluators = new ArrayList<SemanticGraphEdgeEvaluator>();
+
+        //add the extensions first to make sure they are ready when needed
+        evaluators.add(depExtCompoundNoun);
+        evaluators.add(depExtAdverbialModifier);
+        evaluators.add(depExtSimpleNegation);
+        evaluators.add(depExtComplexNegation);
+
+        //add the dependency extractors
+        evaluators.add(depAdjectivalModifier);
+        evaluators.add(depDirectObjectAdjectivalComplement);
+        evaluators.add(depComplementCopularVerb);
+        evaluators.add(depAdverbialModifierPassiveVerb);
+
+
+        //create all DependencyExtensionsAspects
+        ArrayList<DependencyExtensionAspect> extensionsAspect = new ArrayList<DependencyExtensionAspect>();
+        extensionsAspect.add(depExtCompoundNoun);
+        extensionsAspect.add(depExtSimpleNegation);
+
+        //create all DependencyExtensionsModifier
+        ArrayList<DependencyExtensionModifier> extensionsModifier = new ArrayList<DependencyExtensionModifier>();
+        extensionsModifier.add(depExtAdverbialModifier);
+        extensionsModifier.add(depExtSimpleNegation);
+        extensionsModifier.add(depExtComplexNegation);
+
+        //make the dependency extensions available to the dependency parsers
+        SemanticGraphEdgeEvaluator.dependencyExtensionAspects = extensionsAspect;
+        SemanticGraphEdgeEvaluator.dependencyExtensionModifiers = extensionsModifier;
      
         //run pipeline code per business! Entry<businessID, reviewText>
         for (HashMap.Entry<String, String> business : reviewsPerBusiness.entrySet()){
-        	//prepare result data variables
-        	ArrayList<ExtractedAspectAndModifier> aspects = new ArrayList<ExtractedAspectAndModifier>();
+
+            ArrayList<ExtractedAspectAndModifier> tmpResult = new ArrayList<>();
         	String reviewText = business.getValue();
+
+            // let the dependency extractors know the arraylist to put in the extractions
+            depAdjectivalModifier.setResult(tmpResult);
+            depAdverbialModifierPassiveVerb.setResult(tmpResult);
+            depComplementCopularVerb.setResult(tmpResult);
+            depDirectObjectAdjectivalComplement.setResult(tmpResult);
         	
         	// create an empty Annotation just with the given text
             Annotation document = new Annotation(reviewText);
@@ -57,70 +110,42 @@ public class DependencyExtractor {
             // these are all the sentences in this document
             List<CoreMap> sentences = document.get(CoreAnnotations.SentencesAnnotation.class);
 
-            //create all DependencyExtensions
-            DepExtCompoundNoun depExtCompoundNoun = new DepExtCompoundNoun();
-            DepExtAdverbialModifier depExtAdverbialModifier = new DepExtAdverbialModifier();
-            DepExtSimpleNegation depExtSimpleNegation = new DepExtSimpleNegation();
-            DepExtComplexNegation depExtComplexNegation = new DepExtComplexNegation();
-
-            //create all SemanticGraphEdgeEvaluators
-            ArrayList<SemanticGraphEdgeEvaluator> evaluators = new ArrayList<SemanticGraphEdgeEvaluator>();
-
-            //add the extensions first to make sure they are ready when needed
-            evaluators.add(depExtCompoundNoun);
-            evaluators.add(depExtAdverbialModifier);
-            evaluators.add(depExtSimpleNegation);
-            evaluators.add(depExtComplexNegation);
-
-            evaluators.add(new DepAdjectivalModifier(aspects));
-            evaluators.add(new DepDirectObjectAdjectivalComplement(aspects));
-            evaluators.add(new DepComplementCopularVerb(aspects));
-            evaluators.add(new DepAdverbialModifierPassiveVerb(aspects));
-
-
-            //create all DependencyExtensionsAspects
-            ArrayList<DependencyExtensionAspect> extensionsAspect = new ArrayList<DependencyExtensionAspect>();
-            extensionsAspect.add(depExtCompoundNoun);
-            extensionsAspect.add(depExtSimpleNegation);
-
-            //create all DependencyExtensionsModifier
-            ArrayList<DependencyExtensionModifier> extensionsModifier = new ArrayList<DependencyExtensionModifier>();
-            extensionsModifier.add(depExtAdverbialModifier);
-            extensionsModifier.add(depExtSimpleNegation);
-            extensionsModifier.add(depExtComplexNegation);
-
-            //make the dependency extensions available to the dependency parsers
-            SemanticGraphEdgeEvaluator.dependencyExtensionAspects = extensionsAspect;
-            SemanticGraphEdgeEvaluator.dependencyExtensionModifiers = extensionsModifier;
-
 
             //now extract the syntactical dependencies
             for(CoreMap sentence: sentences) {
 
+
 //                SemanticGraph dependencies = sentence.get(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class);
 //                SemanticGraph dependencies = sentence.get(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class);
                 SemanticGraph dependencies = sentence.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class);
+//                String sentenceSentiment = sentence.get(SentimentCoreAnnotations.SentimentClass.class);
 
                 List<SemanticGraphEdge> edge_set1 = dependencies.edgeListSorted();
     //
                 for(SemanticGraphEdge edge : edge_set1) {
                     for (SemanticGraphEdgeEvaluator evaluator: evaluators){
-                        evaluator.evalSemanticGraphEdge(edge);
+                        evaluator.evalSemanticGraphEdge(edge, "");
                     }
                 }
                 for (SemanticGraphEdgeEvaluator evaluator: evaluators){
-                    evaluator.endOfSentence();
+                    evaluator.endOfSentence("");
                 }
                 for (SemanticGraphEdgeEvaluator evaluator: evaluators){
                     evaluator.clear();
                 }
             }
             
-            input.put(business.getKey(), aspects);
+//            input.put(business.getKey(), result);
+            for (ExtractedAspectAndModifier aspect : tmpResult) {
+                aspect.setBusinessId(business.getKey());
+            }
+
+            result.addAll(tmpResult);
+
         }
         
 
-        return input;
+        return result;
 
 //        System.out.println("Extracted Aspect-Modifier pairs:"+ ExtractionResult.getResult());
 
@@ -146,5 +171,7 @@ public class DependencyExtractor {
 //        }
 
     }
+
+
 
 }

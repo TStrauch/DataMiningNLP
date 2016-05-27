@@ -7,7 +7,6 @@ import edu.stanford.nlp.semgraph.SemanticGraphEdge;
 import model.GovernorDependent;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Timo on 04.05.16.
@@ -16,9 +15,9 @@ public abstract class SemanticGraphEdgeEvaluator {
     public static ArrayList<DependencyExtensionAspect> dependencyExtensionAspects;
     public static ArrayList<DependencyExtensionModifier> dependencyExtensionModifiers;
 
-    public abstract void evalSemanticGraphEdge(SemanticGraphEdge edge);
+    public abstract void evalSemanticGraphEdge(SemanticGraphEdge edge, String sentenceSentiment);
 
-    public abstract void endOfSentence();
+    public abstract void endOfSentence(String sentenceSentiment);
 
     public abstract void clear();
 
@@ -76,8 +75,7 @@ public abstract class SemanticGraphEdgeEvaluator {
     private boolean isAdjective(IndexedWord adjective){
         return adjective.tag().toString().equals("JJ")
                 || adjective.tag().toString().equals("JJR")
-                || adjective.tag().toString().equals("JJS")
-                || adjective.tag().toString().equals("JJ");
+                || adjective.tag().toString().equals("JJS");
     }
 
     private boolean isAdverb(IndexedWord adverb){

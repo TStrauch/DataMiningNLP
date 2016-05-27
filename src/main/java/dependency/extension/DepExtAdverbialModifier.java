@@ -17,7 +17,7 @@ public class DepExtAdverbialModifier extends SemanticGraphEdgeEvaluator implemen
 
     private HashMap<String, ArrayList<IndexedWord>> tmpAdvmodDependencies = new HashMap();
 
-    public void evalSemanticGraphEdge(SemanticGraphEdge edge) {
+    public void evalSemanticGraphEdge(SemanticGraphEdge edge, String sentenceSentiment) {
         IndexedWord dep = edge.getDependent();
         IndexedWord gov = edge.getGovernor();
         GrammaticalRelation relation = edge.getRelation();
@@ -32,7 +32,7 @@ public class DepExtAdverbialModifier extends SemanticGraphEdgeEvaluator implemen
         }
     }
 
-    public void endOfSentence() {
+    public void endOfSentence(String sentenceSentiment) {
         //no need to do anything here
     }
 

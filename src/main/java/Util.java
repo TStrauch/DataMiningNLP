@@ -10,15 +10,14 @@ import java.util.stream.Stream;
  */
 public class Util {
 
-    public HashMap<String, ArrayList<ExtractedAspectAndModifier>> pipe(HashMap<String, ArrayList<ExtractedAspectAndModifier>> input){
+    public ArrayList<ExtractedAspectAndModifier> pipe(ArrayList<ExtractedAspectAndModifier> input){
         return input;
     }
 
-    public static HashMap<String, ArrayList<ExtractedAspectAndModifier>> createConsolidatedDatastructure(HashMap<String, ArrayList<ExtractedAspectAndModifier>> input){
+    public static HashMap<String, ArrayList<ExtractedAspectAndModifier>> createConsolidatedDatastructure(ArrayList<ExtractedAspectAndModifier> input){
         HashMap<String, ArrayList<ExtractedAspectAndModifier>> consolidation = new HashMap<String, ArrayList<ExtractedAspectAndModifier>>();
 
-        for (ArrayList<ExtractedAspectAndModifier> aspectsPerBusiness : input.values()){
-          for (ExtractedAspectAndModifier tuple : aspectsPerBusiness) {
+          for (ExtractedAspectAndModifier tuple : input) {
             ArrayList<ExtractedAspectAndModifier> extractedAspectAndModifierList = consolidation.get(tuple.getAspectLemma());
             if (extractedAspectAndModifierList == null){
                 extractedAspectAndModifierList = new ArrayList<ExtractedAspectAndModifier>();
@@ -29,7 +28,7 @@ public class Util {
                 extractedAspectAndModifierList.add(tuple);
             }
           }
-        }
+
 
         return consolidation;
 
@@ -58,7 +57,7 @@ public class Util {
             //add to clusterIdAspectsMap
             ArrayList<ExtractedAspectAndModifier> aspectAndModifiers = clusteridAspectsMap.get(clusterid);
             if(aspectAndModifiers == null){
-                aspectAndModifiers = new ArrayList<ExtractedAspectAndModifier>();
+                aspectAndModifiers = new ArrayList<>();
                 clusteridAspectsMap.put(clusterid, aspectAndModifiers);
             }
             ArrayList<ExtractedAspectAndModifier> extractedAspectAndModifiers = map.get(lemma);
@@ -77,11 +76,47 @@ public class Util {
         return clusteredAspectMaps;
     }
 
-    public static Map<ExtractedAspectAndModifier, Double> getMostPositiveAndNegativeClusters(ClusteredAspectMaps input){
+    public static HashMap<String, HashMap<Integer, ArrayList<ExtractedAspectAndModifier>>> buildBusinessClusterAspectIndex(ClusteredAspectMaps input){
         HashMap<Integer, ExtractedAspectAndModifier> clusterIdCentroidMap = input.clusterIdCentroidMap;
         HashMap<Integer, ArrayList<ExtractedAspectAndModifier>> clusteridAspectsMap = input.clusteridAspectsMap;
 
-        LinkedHashMap<ExtractedAspectAndModifier, Double> clusterIdSentiment = new LinkedHashMap<ExtractedAspectAndModifier, Double>();
+        //build up index of businessid --> clusterid --> list
+        HashMap<String, HashMap<Integer, ArrayList<ExtractedAspectAndModifier>>> businessClusterAspectlist = new HashMap<>();
+
+        for (Map.Entry<Integer, ArrayList<ExtractedAspectAndModifier>> clusterIdAspects : clusteridAspectsMap.entrySet()) {
+
+            int clusterId = clusterIdAspects.getKey();
+
+            for (ExtractedAspectAndModifier extractedAspectAndModifier : clusterIdAspects.getValue()) {
+
+                String tmpBusinessId = extractedAspectAndModifier.getBusinessId();
+                HashMap<Integer, ArrayList<ExtractedAspectAndModifier>> clusterAspectlist = businessClusterAspectlist.get(tmpBusinessId);
+                if (clusterAspectlist == null){
+                    clusterAspectlist = new HashMap<>();
+                    businessClusterAspectlist.put(tmpBusinessId, clusterAspectlist);
+                }
+
+                ArrayList<ExtractedAspectAndModifier> aspectList = clusterAspectlist.get(clusterId);
+                if (aspectList == null){
+                    aspectList = new ArrayList<>();
+                    clusterAspectlist.put(clusterId, aspectList);
+                }
+
+                //now we know there is a clusterAspectList and a aspectList
+                aspectList.add(extractedAspectAndModifier);
+            }
+
+        }
+
+        return businessClusterAspectlist;
+    }
+
+    public static Map<ExtractedAspectAndModifier, Double> orderClustersBySentimentPerBusiness(
+            HashMap<Integer, ArrayList<ExtractedAspectAndModifier>> clusteridAspectsMap,
+            HashMap<Integer, ExtractedAspectAndModifier> clusterIdCentroidMap){
+
+
+        LinkedHashMap<ExtractedAspectAndModifier, Double> clusterIdSentiment = new LinkedHashMap<>();
         for (Integer clusterid : clusteridAspectsMap.keySet()) {
             double sentimentScore = 0.0;
             for (ExtractedAspectAndModifier extractedAspectAndModifier : clusteridAspectsMap.get(clusterid)) {

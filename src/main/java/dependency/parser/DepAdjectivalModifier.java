@@ -17,13 +17,18 @@ public class DepAdjectivalModifier extends SemanticGraphEdgeEvaluator {
     private static final String AMOD = "amod";
     private ArrayList<ExtractedAspectAndModifier> result;
 
-    public DepAdjectivalModifier(ArrayList<ExtractedAspectAndModifier> input){
-        this.result = input;
+
+    public ArrayList<ExtractedAspectAndModifier> getResult() {
+        return result;
+    }
+
+    public void setResult(ArrayList<ExtractedAspectAndModifier> result) {
+        this.result = result;
     }
 
     private ArrayList<GovernorDependent> tmpAmodDependencies = new ArrayList<GovernorDependent>();
 
-    public void evalSemanticGraphEdge(SemanticGraphEdge edge){
+    public void evalSemanticGraphEdge(SemanticGraphEdge edge, String sentenceSentiment){
         IndexedWord dep = edge.getDependent();
         IndexedWord gov = edge.getGovernor();
         GrammaticalRelation relation = edge.getRelation();
@@ -34,7 +39,7 @@ public class DepAdjectivalModifier extends SemanticGraphEdgeEvaluator {
 
     }
 
-    public void endOfSentence() {
+    public void endOfSentence(String sentenceSentiment) {
         for (GovernorDependent amodDep: this.tmpAmodDependencies){
             if(correctPOSTags(amodDep.gov,amodDep.dep)){
 
@@ -43,6 +48,8 @@ public class DepAdjectivalModifier extends SemanticGraphEdgeEvaluator {
 
                 ExtractedAspectAndModifier tuple = new ExtractedAspectAndModifier(amodDep.gov, amodDep.dep);
                 tuple.setExtensions(extensionsAspect, extensionsModifier);
+
+                tuple.setSentenceSentiment(sentenceSentiment);
 
                 this.result.add(tuple);
             }

@@ -20,11 +20,15 @@ public class DepComplementCopularVerb extends SemanticGraphEdgeEvaluator {
     private ArrayList<GovernorDependent> tmpCopDependencies = new ArrayList<GovernorDependent>();
     private ArrayList<ExtractedAspectAndModifier> result;
 
-    public DepComplementCopularVerb(ArrayList<ExtractedAspectAndModifier> input){
-        this.result = input;
+    public ArrayList<ExtractedAspectAndModifier> getResult() {
+        return result;
     }
 
-    public void evalSemanticGraphEdge(SemanticGraphEdge edge) {
+    public void setResult(ArrayList<ExtractedAspectAndModifier> result) {
+        this.result = result;
+    }
+
+    public void evalSemanticGraphEdge(SemanticGraphEdge edge, String sentenceSentiment) {
         IndexedWord dep = edge.getDependent();
         IndexedWord gov = edge.getGovernor();
         GrammaticalRelation relation = edge.getRelation();
@@ -37,7 +41,7 @@ public class DepComplementCopularVerb extends SemanticGraphEdgeEvaluator {
         }
     }
 
-    public void endOfSentence() {
+    public void endOfSentence(String sentenceSentiment) {
         for (GovernorDependent nsubjDep: this.tmpNsubjDependencies){
 
             for (GovernorDependent copDep: this.tmpCopDependencies){
@@ -49,6 +53,8 @@ public class DepComplementCopularVerb extends SemanticGraphEdgeEvaluator {
 
                     ExtractedAspectAndModifier tuple = new ExtractedAspectAndModifier(nsubjDep.dep, nsubjDep.gov);
                     tuple.setExtensions(extensionsAspect, extensionsModifier);
+
+                    tuple.setSentenceSentiment(sentenceSentiment);
 
                     this.result.add(tuple);
                 }

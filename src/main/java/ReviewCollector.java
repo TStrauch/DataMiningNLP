@@ -10,7 +10,7 @@ import java.util.*;
  */
 public class ReviewCollector {
 	
-	public static HashMap<String, String> readData(String reviewPath) throws IOException {
+	public static HashMap<String, String> readData(String reviewPath, int maxEntries) throws IOException {
 		HashMap<String, String> reviews= new HashMap<String, String>();
 		String businessID = "";
         String reviewText = "";
@@ -19,7 +19,8 @@ public class ReviewCollector {
         BufferedReader reader = new BufferedReader(new FileReader(new File(reviewPath)));
         
         String line = reader.readLine();
-        while (line != null){
+		int count = 0;
+        while (line != null && count < maxEntries){
         	String[] lineItems = line.split(";;");
         	businessID = lineItems[0];
         	reviewText = lineItems[1];
@@ -30,6 +31,7 @@ public class ReviewCollector {
         	
         	reviews.put(businessID, reviewText);
             line = reader.readLine();
+			count++;
         }
         reader.close();
 	
@@ -40,7 +42,7 @@ public class ReviewCollector {
 		String reviewPath = "data/Phoenix_reviews_per_business_BarsRestCafes_CHINESE.csv";
 		
 		try{
-			HashMap<String, String> reviews = readData(reviewPath);
+			HashMap<String, String> reviews = readData(reviewPath, 5);
 			int reviewCtr = 0;
 			for (HashMap.Entry<String, String> entry : reviews.entrySet()) {
 				if (reviewCtr >= 3){

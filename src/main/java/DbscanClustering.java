@@ -28,8 +28,8 @@ public class DbscanClustering {
     private double[][] distances;
     private HashMap<Integer, String> aspects;
 
-    private static final double FILTERING_EPS = 0.80;
-    private static final int FILTERING_MINPTS = 4;
+    public static double FILTERING_EPS = 0.9;
+    public static int FILTERING_MINPTS = 4;
 
     public DbscanClustering(AspectSimilarityDistanceModel model){
         this.distances = model.getDistances();
@@ -57,7 +57,7 @@ public class DbscanClustering {
 
     }
 
-    public void removeOutliersWriterClusteringFiles(String pathToAspects, String pathToDistances) throws IOException {
+    public int removeOutliersWriterClusteringFiles(String pathToAspects, String pathToDistances) throws IOException {
         DBSCANClusterer<DoublePoint> clusterer = new DBSCANClusterer<DoublePoint>(FILTERING_EPS, FILTERING_MINPTS, new MyDistanceMeasure(this.distances));
         Collection<DoublePoint> points = this.createPoints(this.aspects);
         final List<Cluster<DoublePoint>> clusters = clusterer.cluster(points);
@@ -70,6 +70,7 @@ public class DbscanClustering {
 
         HashMap<Integer, Integer> mapOldToNewId = new HashMap<Integer, Integer>();
 
+        int numberOfClusters = 0;
         //write aspects to file
         int newId = 0;
         for (Cluster<DoublePoint> cluster : clusters) {
@@ -78,6 +79,7 @@ public class DbscanClustering {
                 writerAspects.write(this.aspects.get(id1)+"\n");
                 mapOldToNewId.put(newId, id1);
                 newId++;
+                numberOfClusters++;
             }
         }
         writerAspects.close();
@@ -118,6 +120,8 @@ public class DbscanClustering {
 
         }
         writerDistances.close();
+
+        return numberOfClusters;
 
     }
 

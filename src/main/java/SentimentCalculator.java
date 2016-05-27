@@ -16,7 +16,7 @@ public class SentimentCalculator {
 
 	}
 	
-	public static HashMap<String, ArrayList<ExtractedAspectAndModifier>> assignSentimenScore(HashMap<String, ArrayList<ExtractedAspectAndModifier>> allBusinesses) throws IOException{
+	public static ArrayList<ExtractedAspectAndModifier> assignSentimentScore(ArrayList<ExtractedAspectAndModifier> input) throws IOException{
 		ArrayList<IndexedWord> allModifiers;
 		LinkedHashMap<IndexedWord, Double> modsWithScore;
 		ArrayList<ExtractedAspectAndModifier> aspectsWithScore;
@@ -25,17 +25,17 @@ public class SentimentCalculator {
 		SWNExtractor dictionary = new SWNExtractor();
 		
 		//loop through allWords per Business
-		for (HashMap.Entry<String, ArrayList<ExtractedAspectAndModifier>> allWords : allBusinesses.entrySet()){
+		for (ExtractedAspectAndModifier aspectAndModifier : input){
 		  //Initialize ArrayList of modified words for each business
-		  aspectsWithScore = new ArrayList<ExtractedAspectAndModifier>();
+//		  aspectsWithScore = new ArrayList<ExtractedAspectAndModifier>();
 			
-		  for (ExtractedAspectAndModifier modAspect : allWords.getValue()){
+//		  for (ExtractedAspectAndModifier modAspect : aspectAndModifier.getValue()){
 			allModifiers = new ArrayList<IndexedWord>();
 			modsWithScore = new LinkedHashMap<IndexedWord, Double>();
 			
 			//get all modifiers of modAspect into one data structure
-			allModifiers.add(modAspect.getModifierIndexWord());
-			allModifiers.addAll(modAspect.getModifierExtension());
+			allModifiers.add(aspectAndModifier.getModifierIndexWord());
+			allModifiers.addAll(aspectAndModifier.getModifierExtension());
 			
 			//loop over modifier words
 			for(IndexedWord mod : allModifiers){
@@ -60,13 +60,13 @@ public class SentimentCalculator {
 			}
 			
 			//calculate overall Sentiment Score for the aspect!
-			modAspect.setSentimentScore(calculateFinalScore(modsWithScore));
-			aspectsWithScore.add(modAspect);			
-		  }
-		  allBusinesses.put(allWords.getKey(), aspectsWithScore);
+			aspectAndModifier.setSentimentScore(calculateFinalScore(modsWithScore));
+//			input.add(aspectAndModifier);
+//		  }
+//		  input.put(aspectAndModifier.getKey(), aspectsWithScore);
 		}
 		
-		return allBusinesses;
+		return input;
 	}
 	
 	private static Double calculateFinalScore(LinkedHashMap<IndexedWord, Double> modsWithScore){

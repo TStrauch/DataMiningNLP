@@ -17,7 +17,7 @@ public class DepExtSimpleNegation extends SemanticGraphEdgeEvaluator implements 
 
     private HashMap<String, String> tmpNegDependencies = new HashMap();
 
-    public void evalSemanticGraphEdge(SemanticGraphEdge edge) {
+    public void evalSemanticGraphEdge(SemanticGraphEdge edge, String sentenceSentiment) {
         IndexedWord dep = edge.getDependent();
         IndexedWord gov = edge.getGovernor();
         GrammaticalRelation relation = edge.getRelation();
@@ -27,7 +27,7 @@ public class DepExtSimpleNegation extends SemanticGraphEdgeEvaluator implements 
         }
     }
 
-    public void endOfSentence() {
+    public void endOfSentence(String sentenceSentiment) {
         //no need to do anything here
     }
 

@@ -22,12 +22,15 @@ public class DepDirectObjectAdjectivalComplement extends SemanticGraphEdgeEvalua
     private ArrayList<GovernorDependent> tmpXcompDependencies = new ArrayList<GovernorDependent>();
     private ArrayList<ExtractedAspectAndModifier> result;
 
-    public DepDirectObjectAdjectivalComplement(ArrayList<ExtractedAspectAndModifier> input){
-        this.result = input;
+    public ArrayList<ExtractedAspectAndModifier> getResult() {
+        return result;
     }
 
+    public void setResult(ArrayList<ExtractedAspectAndModifier> result) {
+        this.result = result;
+    }
 
-    public void evalSemanticGraphEdge(SemanticGraphEdge edge) {
+    public void evalSemanticGraphEdge(SemanticGraphEdge edge, String sentenceSentiment) {
         IndexedWord dep = edge.getDependent();
         IndexedWord gov = edge.getGovernor();
         GrammaticalRelation relation = edge.getRelation();
@@ -40,7 +43,7 @@ public class DepDirectObjectAdjectivalComplement extends SemanticGraphEdgeEvalua
         }
     }
 
-    public void endOfSentence() {
+    public void endOfSentence(String sentenceSentiment) {
         for (GovernorDependent nsubjDep: this.tmpNsubjDependencies){
 
             for (GovernorDependent xcompDep: this.tmpXcompDependencies){
@@ -53,6 +56,8 @@ public class DepDirectObjectAdjectivalComplement extends SemanticGraphEdgeEvalua
                     ExtractedAspectAndModifier tuple = new ExtractedAspectAndModifier(nsubjDep.dep, xcompDep.dep);
                     tuple.setExtensions(extensionsAspect, extensionsModifier);
 
+                    tuple.setSentenceSentiment(sentenceSentiment);
+                    
                     this.result.add(tuple);
                 }
             }

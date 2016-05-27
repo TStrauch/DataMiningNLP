@@ -7,7 +7,6 @@ import edu.stanford.nlp.trees.GrammaticalRelation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * Created by Timo on 04.05.16.
@@ -18,7 +17,7 @@ public class DepExtCompoundNoun extends SemanticGraphEdgeEvaluator implements De
 
     private HashMap<String, ArrayList<IndexedWord>> tmpCompoundDependencies = new HashMap();
 
-    public void evalSemanticGraphEdge(SemanticGraphEdge edge) {
+    public void evalSemanticGraphEdge(SemanticGraphEdge edge, String sentenceSentiment) {
         IndexedWord dep = edge.getDependent();
         IndexedWord gov = edge.getGovernor();
         GrammaticalRelation relation = edge.getRelation();
@@ -33,7 +32,7 @@ public class DepExtCompoundNoun extends SemanticGraphEdgeEvaluator implements De
         }
     }
 
-    public void endOfSentence() {
+    public void endOfSentence(String sentenceSentiment) {
         //no need to do anything here
     }
 
