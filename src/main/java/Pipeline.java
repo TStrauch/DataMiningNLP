@@ -74,10 +74,18 @@ public class Pipeline {
         Evaluator evaluator = new Evaluator();
         evaluator.readManualClusters("data/manualLabeledData.csv");
 
+//        BufferedWriter writer = new BufferedWriter ( new FileWriter(new File("data/manualLabeledSentencesFile.csv")));
+
         String reviewText = "";
         for (String s : evaluator.getSentences()) {
             reviewText += s+". ";
+//            writer.write(s+". ");
         }
+
+//        writer.close();
+
+
+
 
         HashMap<String, String> reviews = new HashMap<>();
         reviews.put("evaluationBusiness", reviewText);
@@ -204,11 +212,24 @@ public class Pipeline {
 
     private static void executeClustering() throws IOException {
 
+        final double nclusters_share = 0.2;
+        final double dbscan_eps = 0.99;
+
+        final int nbusinesses = 50;
+
+        String pathPerBusiness = "data/output/perBusinessResult_avgsent__dbscan"+dbscan_eps+"_clusters"+nclusters_share+"_nbusinesses"+nbusinesses+".csv";
+        String pathAllBusiness = "data/output/overallResult_avgsent_dbscan"+dbscan_eps+"_clusters"+nclusters_share+"_nbusinesses"+nbusinesses+".csv";
+
+//        String pathPerBusiness = "data/output/ManualEvaluation/perBusinessResult_dbscan"+dbscan_eps+"_clusters"+nclusters_share+".csv";
+//        String pathAllBusiness = "data/output/ManualEvaluation/overallResult_dbscan"+dbscan_eps+"_clusters"+nclusters_share+".csv";
+
+
         ArrayList<ExtractedAspectAndModifier> result = new ArrayList<ExtractedAspectAndModifier>();
 
         //read business reviews
         //returns HashMap with <businessID, reviewText>
-        HashMap<String, String> reviewsPerBusiness = ReviewCollector.readData("data/Phoenix_reviews_per_business_BarsRestCafes_CHINESE.csv", 50);
+        HashMap<String, String> reviewsPerBusiness = ReviewCollector.readData("data/Phoenix_reviews_per_business_BarsRestCafes_CHINESE.csv", nbusinesses);
+//        HashMap<String, String> reviewsPerBusiness = ReviewCollector.readData("data/manualLabeledSentencesFile.csv", 5);
 
         //Create List of aspects per Business via dependency extractor
         result = new DependencyExtractor().pipe(result, reviewsPerBusiness);
@@ -227,11 +248,12 @@ public class Pipeline {
          */
         AspectSimilarityDistanceModel model = new SimilarityCalculator().pipe(mapAspectLemmaExtractedAspectAndModifier.keySet());
 
-        DbscanClustering.FILTERING_EPS = 1;
+
+        DbscanClustering.FILTERING_EPS = dbscan_eps;
         DbscanClustering clusterer = new DbscanClustering(model);
         int aspectCountAfterDbscan = clusterer.removeOutliersWriterClusteringFiles("data/output/aspectsDbscanFiltered.txt", "data/output/distancesDbscanFiltered.txt");
 
-        int nclusters = (int) (aspectCountAfterDbscan * 0.2);
+        int nclusters = (int) (aspectCountAfterDbscan * nclusters_share);
         PythonExec.executePythonKMedoids(nclusters);
 
 
@@ -256,7 +278,7 @@ public class Pipeline {
 
 //        System.out.println(finalResultPerBusiness);
 
-        BufferedWriter writerAspects = new BufferedWriter ( new FileWriter(new File("data/output/perBusinessResult_50_chinese_JCN_kmedoids.csv")));
+        BufferedWriter writerAspects = new BufferedWriter ( new FileWriter(new File(pathPerBusiness)));
         writerAspects.write("BusinessId;Attribute;Sentiment\n");
         for (String businessId : finalResultPerBusiness.keySet()) {
             Map<ExtractedAspectAndModifier, Double> mapClustersSentiments = finalResultPerBusiness.get(businessId);
@@ -269,7 +291,7 @@ public class Pipeline {
 
         //not per business but entire sentiment calculation
         Map<ExtractedAspectAndModifier, Double> orderedClustersPerBusiness = Util.orderClustersBySentimentPerBusiness(clusteredAspectMaps.clusteridAspectsMap, clusteredAspectMaps.clusterIdCentroidMap);
-        BufferedWriter writer = new BufferedWriter ( new FileWriter(new File("data/output/overallResult_50_chinese_JCN_kmedoids.csv")));
+        BufferedWriter writer = new BufferedWriter ( new FileWriter(new File(pathAllBusiness)));
         writer.write("Attribute;Sentiment\n");
         for (Map.Entry<ExtractedAspectAndModifier, Double> entry : orderedClustersPerBusiness.entrySet()) {
             writer.write(entry.getKey().getFullAspect()+";"+entry.getValue()+"\n");
@@ -277,5 +299,41 @@ public class Pipeline {
         writer.close();
 
 //        System.out.println(orderedClustersPerBusiness);
+    }
+
+    public static void createDistributionOfSimilarities(AspectSimilarityDistanceModel model){
+        double[][] distances = model.getDistances();
+
+        HashMap<String, Integer> distribution = new HashMap<>();
+
+        for (int row = 0; row < distances.length; row++){
+            for (int col = 0; col < distances.length; col++){
+
+                double val = distances[row][col];
+                String valStr = String.valueOf(val);
+
+                if (val == 1.0 ){
+                    valStr = "1.00";
+
+                }
+                else if (val == 0.0){
+                    valStr = "0.00";
+
+                }
+                else{
+                    valStr = valStr.substring(0, 5);
+
+                }
+
+                Integer integer = distribution.get(valStr);
+                if (integer == null){
+                    distribution.put(valStr, 0);
+                }
+                distribution.put(valStr, distribution.get(valStr) + 1);
+
+
+            }
+        }
+
     }
 }

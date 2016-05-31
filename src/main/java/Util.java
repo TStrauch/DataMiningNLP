@@ -122,7 +122,7 @@ public class Util {
             for (ExtractedAspectAndModifier extractedAspectAndModifier : clusteridAspectsMap.get(clusterid)) {
                 sentimentScore += extractedAspectAndModifier.getSentimentScore();
             }
-//            sentimentScore = sentimentScore / clusteridAspectsMap.get(clusterid).size();
+            sentimentScore = sentimentScore / clusteridAspectsMap.get(clusterid).size();
             clusterIdSentiment.put(clusterIdCentroidMap.get(clusterid), sentimentScore);
         }
 
@@ -147,5 +147,45 @@ public class Util {
     public static class ClusteredAspectMaps{
         public HashMap<Integer, ArrayList<ExtractedAspectAndModifier>> clusteridAspectsMap;
         public HashMap<Integer, ExtractedAspectAndModifier> clusterIdCentroidMap;
+    }
+
+    public static void createSimilarityDistribution() throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(new File("data/output/distancesDbscanFiltered_50businesses.txt")));
+
+        HashMap<String, Integer> distribution = new HashMap<>();
+
+        String line;
+        while((line = reader.readLine()) != null){
+            String[] split = line.split(", ");
+
+            for (String val : split) {
+                if (val.length() <= 3){
+                    //0.0 or 1.0
+                    Integer integer = distribution.get(val);
+                    if (integer == null) {
+                        distribution.put(val, 0);
+                    }
+                }
+                else{
+                    val = val.substring(0,4);
+                    Integer integer = distribution.get(val);
+                    if (integer == null) {
+                        distribution.put(val, 0);
+                    }
+                }
+
+                distribution.put(val, distribution.get(val) + 1);
+            }
+
+        }
+
+        for (Map.Entry<String, Integer> stringIntegerEntry : distribution.entrySet()) {
+            System.out.println(stringIntegerEntry.getKey()+";"+(stringIntegerEntry.getValue()/2));
+        }
+
+    }
+
+    public static void main (String[] args) throws IOException {
+        createSimilarityDistribution();
     }
 }
